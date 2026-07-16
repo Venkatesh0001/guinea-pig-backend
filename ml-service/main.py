@@ -131,14 +131,23 @@ async def lifespan(app: FastAPI):
             logger.error("CRITICAL: fgvc_gender_best_1.pth not found and WEIGHTS_URL is not configured.")
             raise FileNotFoundError("Model weights file not found and WEIGHTS_URL is not set.")
             
+    # Disable PyTorch autograd tracking globally to conserve RAM memory
+    torch.set_grad_enabled(False)
+    
     try:
         logger.info(f"Loading state dictionary from: {weights_path}")
-        state_dict = torch.load(weights_path, map_location=device)
+        # weights_only=True minimizes memory usage and prevents loading arbitrary Python objects
+        state_dict = torch.load(weights_path, map_location=device, weights_only=True)
         if "state_dict" in state_dict:
             state_dict = state_dict["state_dict"]
         model.load_state_dict(state_dict)
         model.to(device)
         model.eval()
+        
+        # Delete state_dict reference immediately and trigger garbage collection
+        del state_dict
+        import gc
+        gc.collect()
         
         # Initialize Grad-CAM
         # We target the last layer of the sliced backbone, which is resnet.layer4 (index -1 in backbone)
