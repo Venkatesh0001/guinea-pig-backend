@@ -13,6 +13,7 @@ import numpy as np
 # Define the Modal image with all dependencies
 image = (
     modal.Image.debian_slim(python_version="3.11")
+    .apt_install("libgl1", "libglib2.0-0", "wget")
     .pip_install(
         "fastapi[standard]", 
         "python-multipart", 
@@ -26,7 +27,6 @@ image = (
         "httpx"
     )
     .run_commands(
-        "apt-get update && apt-get install -y wget",
         "wget https://github.com/Venkatesh0001/guinea-pig-backend/releases/download/v1.0.0/fgvc_gender_best_1.pth -O /root/fgvc_gender_best_1.pth"
     )
 )
@@ -105,7 +105,7 @@ def get_model_classes():
 # ----------------------------------------------------
 # 2. Modal Class to hold GPU State
 # ----------------------------------------------------
-@app.cls(gpu="T4", image=image, min_containers=1, secrets=[modal.Secret.from_name("geminiapikey")])
+@app.cls(gpu="T4", image=image, secrets=[modal.Secret.from_name("geminiapikey")])
 class GuineaPigModel:
     @modal.enter()
     def load_model(self):
