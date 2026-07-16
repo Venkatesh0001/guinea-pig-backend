@@ -15,7 +15,8 @@ export async function POST(request) {
     const forwardFormData = new FormData();
     forwardFormData.append('file', file);
 
-    const fastapiUrl = 'http://127.0.0.1:8000/classify-breed';
+    const fastapiBaseUrl = process.env.ML_SERVICE_URL || 'http://127.0.0.1:8000';
+    const fastapiUrl = `${fastapiBaseUrl}/classify-breed`;
     console.log(`Forwarding breed classification to FastAPI: ${fastapiUrl}`);
 
     const response = await fetch(fastapiUrl, {

@@ -5,7 +5,8 @@ export async function GET(request, { params }) {
     const { path } = await params;
     const pathStr = path.join('/');
     const searchParams = new URL(request.url).search;
-    const url = `http://127.0.0.1:8001/api/ecommerce/${pathStr}${searchParams}`;
+    const ecommerceBaseUrl = process.env.ECOMMERCE_SERVICE_URL || 'http://127.0.0.1:8001';
+    const url = `${ecommerceBaseUrl}/api/ecommerce/${pathStr}${searchParams}`;
 
     const response = await fetch(url, {
       method: 'GET',
@@ -27,7 +28,8 @@ export async function POST(request, { params }) {
   try {
     const { path } = await params;
     const pathStr = path.join('/');
-    const url = `http://127.0.0.1:8001/api/ecommerce/${pathStr}`;
+    const ecommerceBaseUrl = process.env.ECOMMERCE_SERVICE_URL || 'http://127.0.0.1:8001';
+    const url = `${ecommerceBaseUrl}/api/ecommerce/${pathStr}`;
 
     const contentType = request.headers.get('content-type') || '';
     let body;

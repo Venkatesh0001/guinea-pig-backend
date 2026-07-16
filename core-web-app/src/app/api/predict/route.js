@@ -24,7 +24,8 @@ export async function POST(request) {
     forwardFormData.append('box_scale', boxScale !== null ? boxScale : '0.4');
 
     // 3. Forward request to FastAPI server running at port 8000
-    const fastapiUrl = 'http://127.0.0.1:8000/predict-gender';
+    const fastapiBaseUrl = process.env.ML_SERVICE_URL || 'http://127.0.0.1:8000';
+    const fastapiUrl = `${fastapiBaseUrl}/predict-gender`;
     console.log(`Forwarding proxy request to FastAPI: ${fastapiUrl} with (x: ${xPct}, y: ${yPct}, scale: ${boxScale})`);
     
     const response = await fetch(fastapiUrl, {
