@@ -111,6 +111,26 @@ async def lifespan(app: FastAPI):
     model = FGVC_GenderClassifier()
     weights_path = "fgvc_gender_best_1.pth"
     
+    # Download weights dynamically if not found locally
+    if not os.path.exists(weights_path):
+        weights_url = os.getenv("WEIGHTS_URL")
+        if weights_url:
+            logger.info(f"Model weights not found. Downloading from WEIGHTS_URL: {weights_url}")
+            try:
+                import urllib.request
+                # Download with a clean browser header to prevent HTTP 403 blocks from host servers
+                opener = urllib.request.build_opener()
+                opener.addheaders = [('User-Agent', 'Mozilla/5.0')]
+                urllib.request.install_opener(opener)
+                urllib.request.urlretrieve(weights_url, weights_path)
+                logger.info("Weights downloaded successfully.")
+            except Exception as e:
+                logger.error(f"CRITICAL: Failed to download weights from URL: {e}")
+                raise e
+        else:
+            logger.error("CRITICAL: fgvc_gender_best_1.pth not found and WEIGHTS_URL is not configured.")
+            raise FileNotFoundError("Model weights file not found and WEIGHTS_URL is not set.")
+            
     try:
         logger.info(f"Loading state dictionary from: {weights_path}")
         state_dict = torch.load(weights_path, map_location=device)
