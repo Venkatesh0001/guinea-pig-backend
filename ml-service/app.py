@@ -24,9 +24,9 @@ def dummy_gpu_trigger():
 with gr.Blocks() as demo:
     gr.Markdown("# 🐹 Guinea Pig Doctor ML Service\nActive and listening for API requests.")
 
-# Mount Gradio blocks onto our FastAPI app at the root "/"
-# This makes FastAPI the parent app, ensuring /predict-gender and /classify-breed are matched first
-app = gr.mount_gradio_app(fastapi_app, demo, path="/")
+# Mount Gradio blocks onto our FastAPI app at "/gradio"
+# This prevents Gradio's catch-all "/" routes from hijacking root FastAPI endpoints like /predict-gender and /classify-breed
+app = gr.mount_gradio_app(fastapi_app, demo, path="/gradio")
 
 # Re-assign to demo.app so Gradio uses our customized app when calling launch()
 demo.app = app
