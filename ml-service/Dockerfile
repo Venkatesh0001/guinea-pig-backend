@@ -2,13 +2,6 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies (required for OpenCV image operations and general compilation)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    && rm -rf /var/lib/apt/lists/*
-
 # Copy requirements file first to exploit Docker cache layers
 COPY requirements.txt .
 
