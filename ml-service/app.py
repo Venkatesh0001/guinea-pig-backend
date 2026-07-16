@@ -32,7 +32,7 @@ demo.app = app
 
 if __name__ == "__main__":
     # Let Gradio launch the server natively to trigger the supervisor's startup-report
-    demo.launch(server_name="0.0.0.0", server_port=7860, prevent_thread=True)
+    demo.launch(server_name="0.0.0.0", server_port=7860)
     
     # Fallback thread blocker to prevent Hugging Face from terminating the main thread
     import time
