@@ -1,0 +1,3149 @@
+{
+  "width": 3461,
+  "height": 3955,
+  "dpi": 300,
+  "blank_images": [
+    "https://images.printify.com/66cc6854d955790ad20d76b9",
+    "https://images.printify.com/66cc6852906b87ab4c0e4473",
+    "https://images.printify.com/66cc6851370f6c68a2085d48",
+    "https://images.printify.com/65a143a300e924633c04dc29",
+    "https://images.printify.com/65a143a72cc47224ac0968e3",
+    "https://images.printify.com/65a143a1cbc2394478034677",
+    "https://images.printify.com/65a143a6a3848ef2f90e5442",
+    "https://images.printify.com/65b264c4426d65e9e80423d3"
+  ],
+  "brand": "Comfort Colors\u00ae",
+  "model": "1466",
+  "placeholders": [
+    {
+      "position": "front",
+      "width": 3461,
+      "height": 3955
+    },
+    {
+      "position": "back",
+      "width": 3461,
+      "height": 3955
+    },
+    {
+      "position": "right_sleeve",
+      "width": 1181,
+      "height": 4724
+    },
+    {
+      "position": "left_sleeve",
+      "width": 1181,
+      "height": 4724
+    }
+  ],
+  "variants": [
+    {
+      "id": 104053,
+      "title": "Black / S",
+      "options": {
+        "color": "Black",
+        "size": "S"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104054,
+      "title": "Black / M",
+      "options": {
+        "color": "Black",
+        "size": "M"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104055,
+      "title": "Black / L",
+      "options": {
+        "color": "Black",
+        "size": "L"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104056,
+      "title": "Black / XL",
+      "options": {
+        "color": "Black",
+        "size": "XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104057,
+      "title": "Black / 2XL",
+      "options": {
+        "color": "Black",
+        "size": "2XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104058,
+      "title": "Black / 3XL",
+      "options": {
+        "color": "Black",
+        "size": "3XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104059,
+      "title": "Blue Jean / S",
+      "options": {
+        "color": "Blue Jean",
+        "size": "S"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104060,
+      "title": "Blue Jean / M",
+      "options": {
+        "color": "Blue Jean",
+        "size": "M"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104061,
+      "title": "Blue Jean / L",
+      "options": {
+        "color": "Blue Jean",
+        "size": "L"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104062,
+      "title": "Blue Jean / XL",
+      "options": {
+        "color": "Blue Jean",
+        "size": "XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104063,
+      "title": "Blue Jean / 2XL",
+      "options": {
+        "color": "Blue Jean",
+        "size": "2XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104064,
+      "title": "Blue Jean / 3XL",
+      "options": {
+        "color": "Blue Jean",
+        "size": "3XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104065,
+      "title": "Butter / S",
+      "options": {
+        "color": "Butter",
+        "size": "S"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104066,
+      "title": "Butter / M",
+      "options": {
+        "color": "Butter",
+        "size": "M"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104067,
+      "title": "Butter / L",
+      "options": {
+        "color": "Butter",
+        "size": "L"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104068,
+      "title": "Butter / XL",
+      "options": {
+        "color": "Butter",
+        "size": "XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104069,
+      "title": "Butter / 2XL",
+      "options": {
+        "color": "Butter",
+        "size": "2XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104070,
+      "title": "Butter / 3XL",
+      "options": {
+        "color": "Butter",
+        "size": "3XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104071,
+      "title": "Chalky Mint / S",
+      "options": {
+        "color": "Chalky Mint",
+        "size": "S"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104072,
+      "title": "Chalky Mint / M",
+      "options": {
+        "color": "Chalky Mint",
+        "size": "M"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104073,
+      "title": "Chalky Mint / L",
+      "options": {
+        "color": "Chalky Mint",
+        "size": "L"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104074,
+      "title": "Chalky Mint / XL",
+      "options": {
+        "color": "Chalky Mint",
+        "size": "XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104075,
+      "title": "Chalky Mint / 2XL",
+      "options": {
+        "color": "Chalky Mint",
+        "size": "2XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104076,
+      "title": "Chalky Mint / 3XL",
+      "options": {
+        "color": "Chalky Mint",
+        "size": "3XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104077,
+      "title": "Crimson / S",
+      "options": {
+        "color": "Crimson",
+        "size": "S"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104078,
+      "title": "Crimson / M",
+      "options": {
+        "color": "Crimson",
+        "size": "M"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104079,
+      "title": "Crimson / L",
+      "options": {
+        "color": "Crimson",
+        "size": "L"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104080,
+      "title": "Crimson / XL",
+      "options": {
+        "color": "Crimson",
+        "size": "XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104081,
+      "title": "Crimson / 2XL",
+      "options": {
+        "color": "Crimson",
+        "size": "2XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104082,
+      "title": "Crimson / 3XL",
+      "options": {
+        "color": "Crimson",
+        "size": "3XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104083,
+      "title": "Espresso / S",
+      "options": {
+        "color": "Espresso",
+        "size": "S"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104084,
+      "title": "Espresso / M",
+      "options": {
+        "color": "Espresso",
+        "size": "M"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104085,
+      "title": "Espresso / L",
+      "options": {
+        "color": "Espresso",
+        "size": "L"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104086,
+      "title": "Espresso / XL",
+      "options": {
+        "color": "Espresso",
+        "size": "XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104087,
+      "title": "Espresso / 2XL",
+      "options": {
+        "color": "Espresso",
+        "size": "2XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104088,
+      "title": "Espresso / 3XL",
+      "options": {
+        "color": "Espresso",
+        "size": "3XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104089,
+      "title": "Grey / S",
+      "options": {
+        "color": "Grey",
+        "size": "S"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104090,
+      "title": "Grey / M",
+      "options": {
+        "color": "Grey",
+        "size": "M"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104091,
+      "title": "Grey / L",
+      "options": {
+        "color": "Grey",
+        "size": "L"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104092,
+      "title": "Grey / XL",
+      "options": {
+        "color": "Grey",
+        "size": "XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104093,
+      "title": "Grey / 2XL",
+      "options": {
+        "color": "Grey",
+        "size": "2XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104094,
+      "title": "Grey / 3XL",
+      "options": {
+        "color": "Grey",
+        "size": "3XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104095,
+      "title": "Ivory / S",
+      "options": {
+        "color": "Ivory",
+        "size": "S"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104096,
+      "title": "Ivory / M",
+      "options": {
+        "color": "Ivory",
+        "size": "M"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104097,
+      "title": "Ivory / L",
+      "options": {
+        "color": "Ivory",
+        "size": "L"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104098,
+      "title": "Ivory / XL",
+      "options": {
+        "color": "Ivory",
+        "size": "XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104099,
+      "title": "Ivory / 2XL",
+      "options": {
+        "color": "Ivory",
+        "size": "2XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104100,
+      "title": "Ivory / 3XL",
+      "options": {
+        "color": "Ivory",
+        "size": "3XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104101,
+      "title": "Peachy / S",
+      "options": {
+        "color": "Peachy",
+        "size": "S"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104102,
+      "title": "Peachy / M",
+      "options": {
+        "color": "Peachy",
+        "size": "M"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104103,
+      "title": "Peachy / L",
+      "options": {
+        "color": "Peachy",
+        "size": "L"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104104,
+      "title": "Peachy / XL",
+      "options": {
+        "color": "Peachy",
+        "size": "XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104105,
+      "title": "Peachy / 2XL",
+      "options": {
+        "color": "Peachy",
+        "size": "2XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104106,
+      "title": "Peachy / 3XL",
+      "options": {
+        "color": "Peachy",
+        "size": "3XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104107,
+      "title": "Pepper / S",
+      "options": {
+        "color": "Pepper",
+        "size": "S"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104108,
+      "title": "Pepper / M",
+      "options": {
+        "color": "Pepper",
+        "size": "M"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104109,
+      "title": "Pepper / L",
+      "options": {
+        "color": "Pepper",
+        "size": "L"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104110,
+      "title": "Pepper / XL",
+      "options": {
+        "color": "Pepper",
+        "size": "XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104111,
+      "title": "Pepper / 2XL",
+      "options": {
+        "color": "Pepper",
+        "size": "2XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104112,
+      "title": "Pepper / 3XL",
+      "options": {
+        "color": "Pepper",
+        "size": "3XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104113,
+      "title": "White / S",
+      "options": {
+        "color": "White",
+        "size": "S"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104114,
+      "title": "White / M",
+      "options": {
+        "color": "White",
+        "size": "M"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104115,
+      "title": "White / L",
+      "options": {
+        "color": "White",
+        "size": "L"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104116,
+      "title": "White / XL",
+      "options": {
+        "color": "White",
+        "size": "XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104117,
+      "title": "White / 2XL",
+      "options": {
+        "color": "White",
+        "size": "2XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104118,
+      "title": "White / 3XL",
+      "options": {
+        "color": "White",
+        "size": "3XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104119,
+      "title": "Yam / S",
+      "options": {
+        "color": "Yam",
+        "size": "S"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104120,
+      "title": "Yam / M",
+      "options": {
+        "color": "Yam",
+        "size": "M"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104121,
+      "title": "Yam / L",
+      "options": {
+        "color": "Yam",
+        "size": "L"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104122,
+      "title": "Yam / XL",
+      "options": {
+        "color": "Yam",
+        "size": "XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104123,
+      "title": "Yam / 2XL",
+      "options": {
+        "color": "Yam",
+        "size": "2XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104124,
+      "title": "Yam / 3XL",
+      "options": {
+        "color": "Yam",
+        "size": "3XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104125,
+      "title": "Hydrangea / S",
+      "options": {
+        "color": "Hydrangea",
+        "size": "S"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104126,
+      "title": "Hydrangea / M",
+      "options": {
+        "color": "Hydrangea",
+        "size": "M"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104127,
+      "title": "Hydrangea / L",
+      "options": {
+        "color": "Hydrangea",
+        "size": "L"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104128,
+      "title": "Hydrangea / XL",
+      "options": {
+        "color": "Hydrangea",
+        "size": "XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104129,
+      "title": "Hydrangea / 2XL",
+      "options": {
+        "color": "Hydrangea",
+        "size": "2XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104130,
+      "title": "Hydrangea / 3XL",
+      "options": {
+        "color": "Hydrangea",
+        "size": "3XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104131,
+      "title": "Neon Violet / S",
+      "options": {
+        "color": "Neon Violet",
+        "size": "S"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3461,
+          "height": 3955
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104132,
+      "title": "Neon Violet / M",
+      "options": {
+        "color": "Neon Violet",
+        "size": "M"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 3839,
+          "height": 4387
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104133,
+      "title": "Neon Violet / L",
+      "options": {
+        "color": "Neon Violet",
+        "size": "L"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104134,
+      "title": "Neon Violet / XL",
+      "options": {
+        "color": "Neon Violet",
+        "size": "XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104135,
+      "title": "Neon Violet / 2XL",
+      "options": {
+        "color": "Neon Violet",
+        "size": "2XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    },
+    {
+      "id": 104136,
+      "title": "Neon Violet / 3XL",
+      "options": {
+        "color": "Neon Violet",
+        "size": "3XL"
+      },
+      "placeholders": [
+        {
+          "position": "front",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "back",
+          "decoration_method": "dtg",
+          "width": 4200,
+          "height": 4800
+        },
+        {
+          "position": "right_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        },
+        {
+          "position": "left_sleeve",
+          "decoration_method": "dtg",
+          "width": 1181,
+          "height": 4724
+        }
+      ],
+      "decoration_methods": [
+        "dtg"
+      ]
+    }
+  ]
+}

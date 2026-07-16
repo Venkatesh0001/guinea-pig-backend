@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  # This is the name we are giving to our container service
+  pgvector_db:
+    # We use a specialized PostgreSQL image that pre-installs the pgvector extension
+    image: ankane/pgvector:latest
+    
+    # Give the running container a friendly name
+    container_name: local_facebook_vector_db
+    
+    # Environment variables set up the internal configuration of the database
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: localpassword
+      POSTGRES_DB: facebook_qa_db
+      
+    # Map port 5432 on your actual computer to port 5432 inside the container
+    ports:
+      - "5432:5432"
+      
+    # Mount a volume so your scraped Facebook posts stay saved even if you stop Docker
+    volumes:
+      - local_postgres_data:/var/lib/postgresql/data
+
+# Define the persistent volume storage space managed by Docker
+volumes:
+  local_postgres_data:
