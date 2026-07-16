@@ -153,7 +153,14 @@ async def search_problems(payload: SearchQuery):
 
     # 2. Connect to database and run cosine similarity search on comments
     try:
-        conn = psycopg2.connect(**DB_CONFIG)
+        db_url = os.getenv("DATABASE_URL")
+        if db_url:
+            if db_url.startswith("postgres://"):
+                db_url = db_url.replace("postgres://", "postgresql://", 1)
+            conn = psycopg2.connect(db_url)
+        else:
+            conn = psycopg2.connect(**DB_CONFIG)
+            
         cursor = conn.cursor()
         
         # pgvector <=> operator computes Cosine Distance on facebook_comments.content
