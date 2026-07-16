@@ -24,13 +24,10 @@ def dummy_gpu_trigger():
 with gr.Blocks() as demo:
     gr.Markdown("# 🐹 Guinea Pig Doctor ML Service\nActive and listening for API requests.")
 
-# Mount Gradio blocks onto our FastAPI app at "/gradio"
-# This prevents Gradio's catch-all "/" routes from hijacking root FastAPI endpoints like /predict-gender and /classify-breed
-app = gr.mount_gradio_app(fastapi_app, demo, path="/gradio")
-
-# Re-assign to demo.app so Gradio uses our customized app when calling launch()
-demo.app = app
+# Mount Gradio blocks onto our FastAPI app at the root "/"
+app = gr.mount_gradio_app(fastapi_app, demo, path="/")
 
 if __name__ == "__main__":
-    # Let Gradio launch the server natively, coordinating with Hugging Face's supervisor lifecycle
-    demo.launch(server_name="0.0.0.0", server_port=7860)
+    port = int(os.environ.get("PORT", 7860))
+    import uvicorn
+    uvicorn.run("app:app", host="0.0.0.0", port=port)
