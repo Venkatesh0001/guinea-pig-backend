@@ -83,6 +83,23 @@ export default function AuthPage({ isOpen, onClose }) {
     }
   };
 
+  const handleFacebookLogin = async () => {
+    setLoading(true);
+    setMessage({ type: "", text: "" });
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "facebook",
+        options: {
+          redirectTo: window.location.origin,
+        },
+      });
+      if (error) throw error;
+    } catch (err) {
+      setMessage({ type: "error", text: err.message || "Failed to trigger Facebook Authentication." });
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop Backdrop blur overlay */}
@@ -136,6 +153,18 @@ export default function AuthPage({ isOpen, onClose }) {
               />
             </svg>
             <span>Continue with Google</span>
+          </button>
+
+          <button
+            onClick={handleFacebookLogin}
+            type="button"
+            className="w-full py-3 px-4 rounded-xl bg-[#1877f2]/10 border border-[#1877f2]/20 hover:bg-[#1877f2]/20 hover:border-[#1877f2]/30 active:scale-[0.99] text-slate-100 font-bold text-xs transition-all flex items-center justify-center space-x-2.5 cursor-pointer shadow-sm"
+          >
+            {/* Facebook Icon SVG */}
+            <svg className="w-4 h-4" fill="#1877f2" viewBox="0 0 24 24">
+              <path d="M9.101 23.685v-9.504H6.183V10.72h2.918V8.196c0-2.89 1.767-4.468 4.35-4.468 1.236 0 2.298.092 2.607.133v3.024h-1.79c-1.402 0-1.674.666-1.674 1.644v2.15h3.35l-.436 3.46h-2.914v9.504H9.101z" />
+            </svg>
+            <span>Continue with Facebook</span>
           </button>
         </div>
 
