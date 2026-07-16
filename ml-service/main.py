@@ -1,3 +1,17 @@
+# ZeroGPU Compatibility Mock for Hugging Face
+try:
+    import spaces
+except ImportError:
+    class spaces:
+        @staticmethod
+        def GPU(func):
+            return func
+
+@spaces.GPU
+def dummy_gpu_trigger():
+    """Satisfies Hugging Face ZeroGPU startup check."""
+    pass
+
 import io
 import os
 import time
