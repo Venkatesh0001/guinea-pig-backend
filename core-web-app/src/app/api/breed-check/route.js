@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { Client } from "@gradio/client";
 
 export async function POST(request) {
   try {
@@ -13,29 +12,38 @@ export async function POST(request) {
       );
     }
 
-    const spaceId = process.env.HF_SPACE_ID || "Venkatesh001/gui-pig-ml-service";
-    console.log(`Connecting to Gradio API space: ${spaceId} for breed classification`);
-    
-    // Convert the File object to Blob for Gradio Client compatibility
-    const fileBlob = new Blob([await file.arrayBuffer()], { type: file.type });
+    const forwardFormData = new FormData();
+    forwardFormData.append('file', file);
 
-    // Connect to the client
-    const app = await Client.connect(spaceId);
+    const fastapiUrl = process.env.MODAL_BREED_URL || 'https://venkatesh0001--guinea-pig-ml-service-guineapigmodel-clas-cdc9f9.modal.run';
+    console.log(`Forwarding breed classification to Modal Serverless API: ${fastapiUrl}`);
 
-    // Make the API call to the classify_breed endpoint
-    const result = await app.predict("/classify_breed", [fileBlob]);
+    const response = await fetch(fastapiUrl, {
+      method: 'POST',
+      body: forwardFormData,
+    });
 
-    // Gradio returns data in a "data" array
-    const data = result.data[0];
-    
-    if (data.error) {
-      console.error(`Gradio returned error:`, data.error);
-      return NextResponse.json({ error: data.error }, { status: 500 });
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error(`Modal server returned error (${response.status}):`, errorBody);
+      try {
+        const parsedError = JSON.parse(errorBody);
+        return NextResponse.json(
+          { error: parsedError.detail || `ML Service returned status ${response.status}` },
+          { status: response.status }
+        );
+      } catch {
+        return NextResponse.json(
+          { error: `ML Service returned status ${response.status}: ${response.statusText}` },
+          { status: response.status }
+        );
+      }
     }
 
+    const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Error in Gradio API bridge route:', error);
+    console.error('Error in secure breed-check API bridge route:', error);
     return NextResponse.json(
       { error: `Internal Server Error in Next.js Bridge: ${error.message || error}` },
       { status: 500 }
