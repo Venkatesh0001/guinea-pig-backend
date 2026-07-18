@@ -14,6 +14,9 @@ from PIL import Image, ImageEnhance, ImageFilter, ImageOps
 import requests
 from dotenv import load_dotenv
 
+# Load env file
+load_dotenv()
+
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 def get_db_connection():
@@ -37,9 +40,6 @@ def get_db_connection():
     conn.commit()
     cursor.close()
     return conn
-
-# Load env file
-load_dotenv()
 
 # Setup logger
 logging.basicConfig(level=logging.INFO)
