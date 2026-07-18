@@ -29,8 +29,15 @@ export default function DiagnosticsPage() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to fetch diagnostic matches.");
+        let errorMessage = "Failed to fetch diagnostic matches.";
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch (_) {
+          const textError = await response.text();
+          errorMessage = textError || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
