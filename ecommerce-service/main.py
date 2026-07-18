@@ -8,6 +8,7 @@ import hmac
 import hashlib
 import logging
 from typing import Dict, Any
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Request, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image, ImageEnhance, ImageFilter, ImageOps
@@ -51,7 +52,84 @@ SHOP_ID = os.getenv("PRINTIFY_SHOP_ID")
 if not API_TOKEN or not SHOP_ID:
     logger.error("Missing PRINTIFY_API_TOKEN or PRINTIFY_SHOP_ID in environment.")
 
-app = FastAPI(title="Guinea Pig Platform E-Commerce POD Service")
+# ----------------------------------------------------
+# Cache & Webhook Automation Helpers
+# ----------------------------------------------------
+def reload_products_cache():
+    """Reloads catalog products from the database into memory cache."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        cursor.execute("SELECT raw_data FROM products ORDER BY updated_at DESC")
+        rows = cursor.fetchall()
+        conn.close()
+        
+        products = [json.loads(row["raw_data"]) for row in rows]
+        app.state.cached_products = products
+        logger.info(f"Successfully reloaded products cache: {len(products)} products cached.")
+    except Exception as e:
+        logger.error(f"Failed to reload products cache: {e}")
+        if not hasattr(app.state, "cached_products"):
+            app.state.cached_products = []
+
+def register_printify_webhooks():
+    """Automatically registers required printify webhooks on startup if running on Render."""
+    external_url = os.getenv("RENDER_EXTERNAL_URL")
+    if not external_url:
+        logger.info("RENDER_EXTERNAL_URL environment variable not set; skipping automatic webhook registration (development mode).")
+        return
+        
+    webhook_url = f"{external_url.rstrip('/')}/api/webhooks/printify"
+    logger.info(f"Checking Printify webhook registrations for URL: {webhook_url}")
+    
+    if not API_TOKEN or not SHOP_ID:
+        logger.error("Printify credentials missing; skipping webhook registration.")
+        return
+        
+    headers = {
+        "Authorization": f"Bearer {API_TOKEN}",
+        "Content-Type": "application/json",
+        "User-Agent": "GuineaPigDoctour Webhook Registrar"
+    }
+    
+    url = f"https://api.printify.com/v1/shops/{SHOP_ID}/webhooks.json"
+    try:
+        # 1. Fetch current webhook registrations
+        response = requests.get(url, headers=headers, timeout=10)
+        if not response.ok:
+            logger.error(f"Failed to fetch Printify webhooks: {response.text}")
+            return
+            
+        existing = response.json()
+        registered_topics = {w["topic"] for w in existing if w["url"] == webhook_url}
+        
+        # 2. Register missing topics
+        topics_to_register = ["shop:product:published", "shop:product:updated", "shop:product:deleted"]
+        for topic in topics_to_register:
+            if topic in registered_topics:
+                logger.info(f"Printify webhook already registered for topic: {topic}")
+                continue
+                
+            logger.info(f"Registering Webhook: topic={topic} -> url={webhook_url}")
+            reg_payload = {"url": webhook_url, "topic": topic}
+            reg_response = requests.post(url, json=reg_payload, headers=headers, timeout=10)
+            if reg_response.ok:
+                logger.info(f"Successfully registered webhook for topic: {topic}")
+            else:
+                logger.error(f"Failed to register webhook for topic {topic}: {reg_response.text}")
+    except Exception as e:
+        logger.error(f"Error registering webhooks: {e}")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Initialize cache on startup
+    reload_products_cache()
+    # Register webhooks asynchronously in a background thread to prevent startup delays
+    import threading
+    threading.Thread(target=register_printify_webhooks, daemon=True).start()
+    yield
+
+app = FastAPI(title="Guinea Pig Platform E-Commerce POD Service", lifespan=lifespan)
 
 # Enable CORS
 app.add_middleware(
@@ -74,19 +152,10 @@ def get_printify_headers():
 # ----------------------------------------------------
 @app.get("/api/ecommerce/products")
 async def get_products():
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor(cursor_factory=RealDictCursor)
-        cursor.execute("SELECT raw_data FROM products ORDER BY updated_at DESC")
-        rows = cursor.fetchall()
-        conn.close()
-        
-        products = [json.loads(row["raw_data"]) for row in rows]
-        logger.info(f"Returning {len(products)} products from local SQLite database")
-        return {"data": products}
-    except Exception as e:
-        logger.error(f"Failed to fetch products from DB: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve local catalog. Error: {str(e)}")
+    # If cache is not initialized, try to load it
+    if not hasattr(app.state, "cached_products") or not app.state.cached_products:
+        reload_products_cache()
+    return {"data": app.state.cached_products}
 
 # ----------------------------------------------------
 # 1.1 Printify Webhook Synchronization Receiver
@@ -112,6 +181,7 @@ def sync_product_from_printify(product_id: str):
             conn.commit()
             conn.close()
             logger.info(f"Successfully synced product {product_id} via webhook")
+            reload_products_cache()
         elif response.status_code == 404:
             # If product is deleted in printify, remove from local DB
             conn = get_db_connection()
@@ -120,6 +190,7 @@ def sync_product_from_printify(product_id: str):
             conn.commit()
             conn.close()
             logger.info(f"Removed deleted product {product_id} from local DB")
+            reload_products_cache()
     except Exception as e:
         logger.error(f"Failed to sync product {product_id} from Printify: {e}")
 
@@ -148,17 +219,25 @@ async def printify_webhook(request: Request, background_tasks: BackgroundTasks):
         logger.info(f"Received Printify webhook: {payload.get('type')}")
         
         event_type = payload.get("type", "")
+        # Remove shop: prefix if it exists to handle all format types
+        normalized_event = event_type.replace("shop:", "")
         data = payload.get("data", {})
         product_id = data.get("id")
         
-        if event_type in ["product:publish:success", "product:updated", "product:created"]:
+        if normalized_event in ["product:publish:success", "product:published", "product:updated", "product:created"]:
             if product_id:
                 background_tasks.add_task(sync_product_from_printify, product_id)
                 
-        elif event_type == "product:deleted":
+        elif normalized_event == "product:deleted":
             if product_id:
-                # Add background task to delete
-                background_tasks.add_task(sync_product_from_printify, product_id)
+                # If deleted, remove from DB immediately to avoid useless 404 API calls
+                conn = get_db_connection()
+                cursor = conn.cursor()
+                cursor.execute("DELETE FROM products WHERE product_id = %s", (product_id,))
+                conn.commit()
+                conn.close()
+                logger.info(f"Removed deleted product {product_id} from local DB directly via webhook")
+                reload_products_cache()
 
         # Immediately return 200 OK to acknowledge and clear "Publishing" state
         return {"status": "success", "message": "Webhook acknowledged"}
