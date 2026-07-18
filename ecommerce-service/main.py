@@ -1,7 +1,8 @@
 import os
 import io
 import json
-import sqlite3
+import psycopg2
+from psycopg2.extras import RealDictCursor
 import base64
 import hmac
 import hashlib
@@ -13,13 +14,20 @@ from PIL import Image, ImageEnhance, ImageFilter, ImageOps
 import requests
 from dotenv import load_dotenv
 
-DATABASE_PATH = os.getenv("DATABASE_PATH", os.path.join(os.path.dirname(os.path.abspath(__file__)), "products.db"))
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 def get_db_connection():
-    conn = sqlite3.connect(DATABASE_PATH)
-    conn.row_factory = sqlite3.Row
-    # Ensure the schema exists so a fresh/empty DB file doesn't 500 with "no such table"
-    conn.execute("""
+    if not DATABASE_URL:
+        raise Exception("DATABASE_URL environment variable is not set")
+    db_url = DATABASE_URL
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
+        
+    conn = psycopg2.connect(db_url)
+    
+    # Ensure the schema exists
+    cursor = conn.cursor()
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS products (
             product_id TEXT PRIMARY KEY,
             raw_data TEXT NOT NULL,
@@ -27,6 +35,7 @@ def get_db_connection():
         )
     """)
     conn.commit()
+    cursor.close()
     return conn
 
 # Load env file
@@ -67,7 +76,7 @@ def get_printify_headers():
 async def get_products():
     try:
         conn = get_db_connection()
-        cursor = conn.cursor()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
         cursor.execute("SELECT raw_data FROM products ORDER BY updated_at DESC")
         rows = cursor.fetchall()
         conn.close()
@@ -95,9 +104,9 @@ def sync_product_from_printify(product_id: str):
             cursor = conn.cursor()
             cursor.execute("""
                 INSERT INTO products (product_id, raw_data, updated_at)
-                VALUES (?, ?, CURRENT_TIMESTAMP)
+                VALUES (%s, %s, CURRENT_TIMESTAMP)
                 ON CONFLICT(product_id) DO UPDATE SET
-                    raw_data = excluded.raw_data,
+                    raw_data = EXCLUDED.raw_data,
                     updated_at = CURRENT_TIMESTAMP
             """, (product_id, json.dumps(data)))
             conn.commit()
@@ -107,7 +116,7 @@ def sync_product_from_printify(product_id: str):
             # If product is deleted in printify, remove from local DB
             conn = get_db_connection()
             cursor = conn.cursor()
-            cursor.execute("DELETE FROM products WHERE product_id = ?", (product_id,))
+            cursor.execute("DELETE FROM products WHERE product_id = %s", (product_id,))
             conn.commit()
             conn.close()
             logger.info(f"Removed deleted product {product_id} from local DB")

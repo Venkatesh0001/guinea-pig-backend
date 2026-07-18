@@ -6,3 +6,4 @@ uvicorn
 Pillow
 python-multipart
 numpy
+psycopg2-binary
