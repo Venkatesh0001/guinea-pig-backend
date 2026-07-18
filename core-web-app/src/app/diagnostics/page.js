@@ -30,12 +30,17 @@ export default function DiagnosticsPage() {
 
       if (!response.ok) {
         let errorMessage = "Failed to fetch diagnostic matches.";
+        const clonedResponse = response.clone();
         try {
           const errorData = await response.json();
           errorMessage = errorData.error || errorMessage;
         } catch (_) {
-          const textError = await response.text();
-          errorMessage = textError || errorMessage;
+          try {
+            const textError = await clonedResponse.text();
+            errorMessage = textError || errorMessage;
+          } catch (__Detail) {
+            errorMessage = `HTTP Error ${response.status}: ${response.statusText}`;
+          }
         }
         throw new Error(errorMessage);
       }
