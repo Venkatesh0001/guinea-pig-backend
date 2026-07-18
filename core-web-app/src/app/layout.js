@@ -29,6 +29,9 @@ export default function RootLayout({ children }) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <meta name='impact-site-verification' value='1066af12-7842-4990-898a-54aa3bfa3124' />
+      </head>
       <body className="min-h-full flex flex-col">
         <AuthProvider>
           <AuthGuard>{children}</AuthGuard>
