@@ -460,7 +460,7 @@ export default function RecommendedProducts() {
                     // Create simulated discount pricing metrics matching Flipkart
                     // Check if product is out of stock (all variants disabled)
                     const outOfStock = product.variants && product.variants.length > 0 
-                      ? product.variants.every(v => v.is_enabled === false && v.is_available === false)
+                      ? !product.variants.some(v => v.is_enabled && v.is_available)
                       : false;
                       
                     const originalPrice = minPrice * 1.5;
@@ -674,11 +674,14 @@ export default function RecommendedProducts() {
                         onChange={(e) => setSelectedVariantId(e.target.value)}
                         className="w-full bg-slate-950/80 text-slate-100 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500/50 appearance-none cursor-pointer text-sm font-semibold transition-all"
                       >
-                        {selectedProduct.variants?.map((v) => (
-                          <option key={v.id} value={v.id} className="bg-slate-950 text-slate-150">
-                            {v.title} - ${(v.price / 100).toFixed(2)}
-                          </option>
-                        ))}
+                        {selectedProduct.variants?.map((v) => {
+                          const isVariantInStock = v.is_enabled && v.is_available;
+                          return (
+                            <option key={v.id} value={v.id} className="bg-slate-950 text-slate-150" disabled={!isVariantInStock}>
+                              {v.title} - ${(v.price / 100).toFixed(2)} {!isVariantInStock ? "(Out of Stock)" : ""}
+                            </option>
+                          );
+                        })}
                       </select>
                       <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-indigo-400">
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
