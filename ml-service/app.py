@@ -110,9 +110,19 @@ def load_model_once():
     weights_path = "fgvc_gender_best_1.pth"
     
     if not os.path.exists(weights_path):
+        # Fallback to a writable directory if current directory is read-only (common in Docker)
+        try:
+            with open("temp_write_test", "w") as f:
+                f.write("test")
+            os.remove("temp_write_test")
+        except PermissionError:
+            weights_path = os.path.join("/tmp" if os.name == "posix" else os.path.expanduser("~"), "fgvc_gender_best_1.pth")
+            logger.info(f"Current directory read-only. Redirecting weights path to: {weights_path}")
+    
+    if not os.path.exists(weights_path):
         weights_url = os.getenv("WEIGHTS_URL", "https://github.com/Venkatesh0001/guinea-pig-backend/releases/download/v1.0.0/fgvc_gender_best_1.pth")
         if weights_url:
-            logger.info(f"Model weights not found. Downloading from WEIGHTS_URL: {weights_url}")
+            logger.info(f"Model weights not found. Downloading from WEIGHTS_URL: {weights_url} to {weights_path}")
             try:
                 import urllib.request
                 opener = urllib.request.build_opener()
@@ -121,7 +131,7 @@ def load_model_once():
                 urllib.request.urlretrieve(weights_url, weights_path)
                 logger.info("Weights downloaded successfully.")
             except Exception as e:
-                logger.error(f"CRITICAL: Failed to download weights from URL: {e}")
+                logger.error(f"CRITICAL: Failed to download weights from URL to {weights_path}: {e}")
                 raise e
         else:
             logger.error("CRITICAL: fgvc_gender_best_1.pth not found and WEIGHTS_URL is not configured.")
