@@ -1,194 +1,193 @@
 import os
+import sys
 import glob
 import json
-import re
-import sys
 import psycopg2
 from sentence_transformers import SentenceTransformer
 from dotenv import load_dotenv
 
-# Load environment variables from local .env file
+# Load database URL
 script_dir = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(os.path.join(script_dir, ".env"))
 
-# Load dataset path (env-overridable, defaults to the dataset file next to this script)
-JSON_FILE_PATH = os.getenv("DATASET_PATH")
-if not JSON_FILE_PATH:
-    matches = glob.glob(os.path.join(script_dir, "dataset_facebook-groups-scraper_*.json"))
-    if not matches:
-        print("CRITICAL ERROR: No dataset file matching 'dataset_facebook-groups-scraper_*.json' found next to the script.", file=sys.stderr)
-        print("Please set the 'DATASET_PATH' environment variable to point to your dataset JSON file.", file=sys.stderr)
-        sys.exit(1)
-    JSON_FILE_PATH = matches[0]
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    # Try loading from the ecommerce-service .env if root is empty
+    load_dotenv(os.path.join(script_dir, "..", "ecommerce-service", ".env"))
+    DATABASE_URL = os.getenv("DATABASE_URL")
 
-def extract_legacy_id(url):
-    if not url:
-        return None
-    # Match permalink format
-    m = re.search(r'/permalink/(\d+)', url)
-    if m:
-        return m.group(1)
-    # Match set=gm. format
-    m = re.search(r'set=gm\.(\d+)', url)
-    if m:
-        return m.group(1)
-    return None
+if not DATABASE_URL:
+    # Direct fallback using the credentials provided by the user
+    DATABASE_URL = "postgresql://postgres.sjszlthjiltfmxwrmmbs:o9iXCHPMSroAUh0d@aws-0-eu-west-1.pooler.supabase.com:5432/postgres"
+
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+# Default to the new dataset path
+JSON_FILE_PATH = os.path.join(script_dir, "..", "diagnostics-service", "dataset_facebook-groups-scraper_2026-07-18_07-52-31-758.json")
 
 def seed_database():
-    # 1. Fetch connection string from Environment Variables
-    db_url = os.getenv("DATABASE_URL")
-    if not db_url:
-        print("CRITICAL ERROR: The 'DATABASE_URL' environment variable is not set.", file=sys.stderr)
-        print("Please ensure your local .env file contains a valid 'DATABASE_URL' configuration.", file=sys.stderr)
-        sys.exit(1)
-
-    # Convert legacy scheme prefix if present
-    if db_url.startswith("postgres://"):
-        db_url = db_url.replace("postgres://", "postgresql://", 1)
-
-    # 2. Load the NLP embedding model
-    print("Loading SentenceTransformer model 'all-MiniLM-L6-v2'...")
+    print(f"Connecting to database...")
     try:
-        model = SentenceTransformer("all-MiniLM-L6-v2")
-        print("Model loaded successfully.")
-    except Exception as e:
-        print(f"CRITICAL ERROR: Failed to load SentenceTransformer model: {e}", file=sys.stderr)
-        sys.exit(1)
-
-    # 3. Read the comments JSON file
-    if not os.path.exists(JSON_FILE_PATH):
-        print(f"CRITICAL ERROR: JSON dataset file not found at: {JSON_FILE_PATH}", file=sys.stderr)
-        sys.exit(1)
-
-    try:
-        with open(JSON_FILE_PATH, "r", encoding="utf-8") as f:
-            comments = json.load(f)
-        print(f"Loaded {len(comments)} comments from JSON file.")
-    except Exception as e:
-        print(f"CRITICAL ERROR: Failed to parse JSON dataset: {e}", file=sys.stderr)
-        sys.exit(1)
-
-    # 4. Connect to Supabase / PostgreSQL database
-    try:
-        print("Attempting to connect to PostgreSQL database...")
-        # psycopg2 natively supports URI connection strings (including port 6543 pooling connections)
-        conn = psycopg2.connect(db_url)
+        conn = psycopg2.connect(DATABASE_URL)
         cursor = conn.cursor()
-        print("Successfully connected to Supabase database.")
+        print("Connected to Supabase database successfully.")
     except Exception as e:
-        print(f"CRITICAL ERROR: Database connection failed: {e}", file=sys.stderr)
-        sys.exit(1)
+        print(f"Failed to connect to database: {e}", file=sys.stderr)
+        return
 
-    # 5. Initialize Schema & Execute Migrations
-    try:
-        print("Initializing vector extension and database schema...")
-        
-        # Enable pgvector extension
-        cursor.execute("CREATE EXTENSION IF NOT EXISTS vector;")
-        
-        # Create posts table if it does not exist (fallback for empty databases)
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS facebook_posts (
-                id SERIAL PRIMARY KEY,
-                fb_post_id VARCHAR(255) UNIQUE,
-                post_url TEXT NOT NULL,
-                content TEXT NOT NULL,
-                text_embedding vector(384),
-                legacy_id VARCHAR(255)
-            );
-        """)
+    # Ensure tables exist
+    cursor.execute("CREATE EXTENSION IF NOT EXISTS vector;")
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS facebook_posts (
+            id SERIAL PRIMARY KEY,
+            fb_post_id VARCHAR(255) UNIQUE,
+            post_url TEXT NOT NULL,
+            content TEXT NOT NULL,
+            text_embedding vector(384),
+            legacy_id VARCHAR(255)
+        );
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS facebook_comments (
+            id SERIAL PRIMARY KEY,
+            comment_id VARCHAR(255) UNIQUE,
+            parent_post_id VARCHAR(255),
+            author_name VARCHAR(255),
+            post_url TEXT NOT NULL,
+            content TEXT NOT NULL,
+            text_embedding vector(384)
+        );
+    """)
+    conn.commit()
 
-        # Create comments table
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS facebook_comments (
-                id SERIAL PRIMARY KEY,
-                comment_id VARCHAR(255) UNIQUE,
-                parent_post_id VARCHAR(255),
-                author_name VARCHAR(255),
-                post_url TEXT NOT NULL,
-                content TEXT NOT NULL,
-                text_embedding vector(384)
-            );
-        """)
-        
-        # Verify legacy_id column exists on posts table
-        cursor.execute("ALTER TABLE facebook_posts ADD COLUMN IF NOT EXISTS legacy_id VARCHAR(255);")
-        
-        # Populate legacy_id for existing posts if any exist
-        cursor.execute("SELECT id, post_url FROM facebook_posts WHERE legacy_id IS NULL;")
-        posts_to_update = cursor.fetchall()
-        for post_id, post_url in posts_to_update:
-            legacy_id = extract_legacy_id(post_url)
-            if legacy_id:
-                cursor.execute("UPDATE facebook_posts SET legacy_id = %s WHERE id = %s;", (legacy_id, post_id))
-                
-        conn.commit()
-        print("Database schema migration and validation complete.")
-    except Exception as e:
-        print(f"CRITICAL ERROR: Failed to run database migrations: {e}", file=sys.stderr)
-        conn.rollback()
-        cursor.close()
-        conn.close()
-        sys.exit(1)
+    print("Loading SentenceTransformer model...")
+    model = SentenceTransformer("all-MiniLM-L6-v2")
+    print("Model loaded successfully.")
 
-    # 6. Process and Insert comments data
-    inserted_count = 0
-    skipped_count = 0
+    json_file_path = JSON_FILE_PATH
+    print(f"Opening dataset file: {json_file_path}")
+    if not os.path.exists(json_file_path):
+        # Fallback to look inside facebook_group if not in diagnostics-service
+        matches = glob.glob(os.path.join(script_dir, "dataset_facebook-groups-scraper_*.json"))
+        if matches:
+            json_file_path = matches[0]
+            print(f"Dataset not found at primary path. Falling back to: {json_file_path}")
+        else:
+            print("CRITICAL ERROR: No dataset file found.", file=sys.stderr)
+            return
 
-    print("Generating embeddings and seeding comments to database...")
-    for idx, comment in enumerate(comments):
-        text = (comment.get("text") or "").strip()
-        if not text:
-            skipped_count += 1
-            continue
+    with open(json_file_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
 
-        try:
+    print(f"Found {len(data)} items in dataset. Starting seed...")
+
+    posts_inserted = 0
+    comments_inserted = 0
+    skipped_comments = 0
+
+    # Check if the dataset is flat comments or nested posts
+    is_nested_posts = len(data) > 0 and "topComments" in data[0]
+
+    if is_nested_posts:
+        print("Detected nested posts dataset. Seeding both posts and comments...")
+        for idx, post in enumerate(data):
+            post_id = post.get("id")
+            post_url = post.get("facebookUrl") or post.get("url") or ""
+            content = (post.get("text") or "").strip()
+            legacy_id = post.get("legacyId")
+
+            if not content or not legacy_id:
+                continue
+
+            # 1. Insert parent post (Skip embedding computation since it's not used in search)
+            try:
+                cursor.execute("""
+                    INSERT INTO facebook_posts (fb_post_id, post_url, content, legacy_id)
+                    VALUES (%s, %s, %s, %s)
+                    ON CONFLICT (fb_post_id) DO NOTHING;
+                """, (post_id, post_url, content, legacy_id))
+                if cursor.rowcount > 0:
+                    posts_inserted += 1
+            except Exception as e:
+                print(f"Error inserting post {post_id}: {e}")
+                conn.rollback()
+                continue
+
+            # 2. Insert topComments nested under this post
+            comments_list = post.get("topComments", [])
+            for comment in comments_list:
+                comment_text = (comment.get("text") or "").strip()
+                if not comment_text:
+                    skipped_comments += 1
+                    continue
+
+                comment_id = comment.get("commentId") or comment.get("id")
+                author_name = (comment.get("user") or {}).get("name", "Anonymous")
+                comment_url = comment.get("commentUrl") or comment.get("url") or post_url
+
+                try:
+                    # Generate embedding for comment
+                    embedding = model.encode(comment_text).tolist()
+
+                    cursor.execute("""
+                        INSERT INTO facebook_comments (comment_id, parent_post_id, author_name, post_url, content, text_embedding)
+                        VALUES (%s, %s, %s, %s, %s, %s)
+                        ON CONFLICT (comment_id) DO NOTHING;
+                    """, (comment_id, legacy_id, author_name, comment_url, comment_text, embedding))
+                    if cursor.rowcount > 0:
+                        comments_inserted += 1
+                except Exception as e:
+                    print(f"Error inserting comment {comment_id}: {e}")
+                    conn.rollback()
+                    continue
+
+            # Commit per post
+            conn.commit()
+
+            if (idx + 1) % 50 == 0 or (idx + 1) == len(data):
+                print(f"Processed {idx + 1}/{len(data)} posts. Posts inserted: {posts_inserted}, Comments inserted: {comments_inserted}")
+    else:
+        print("Detected flat comments dataset. Seeding comments only...")
+        for idx, comment in enumerate(data):
+            comment_text = (comment.get("text") or "").strip()
+            if not comment_text:
+                skipped_comments += 1
+                continue
+
             comment_id = comment.get("commentId") or comment.get("id")
             parent_post_id = comment.get("legacyId")
             author_name = (comment.get("user") or {}).get("name", "Anonymous")
-            post_url = comment.get("commentUrl") or comment.get("url") or comment.get("facebookUrl", "https://www.facebook.com/groups/484638885565090")
+            comment_url = comment.get("commentUrl") or comment.get("url") or ""
 
-            # Generate 384-dimensional vector embedding
-            embedding = model.encode(text).tolist()
-            
-            # Insert record using standard parameter binding
-            cursor.execute("""
-                INSERT INTO facebook_comments (comment_id, parent_post_id, author_name, post_url, content, text_embedding)
-                VALUES (%s, %s, %s, %s, %s, %s)
-                ON CONFLICT (comment_id) DO NOTHING;
-            """, (comment_id, parent_post_id, author_name, post_url, text, embedding))
-            
-            if cursor.rowcount > 0:
-                inserted_count += 1
-            # Commit per row so a later row failure cannot discard earlier inserts
-            conn.commit()
-        except psycopg2.Error as db_err:
-            # Print strict database execution errors (e.g. constraints, type mismatch, dimensions)
-            print(f"\n[ROW ERROR] Failed to insert comment {idx} (ID: {comment_id}):", file=sys.stderr)
-            print(f"  PostgreSQL Error Code: {db_err.pgcode}", file=sys.stderr)
-            print(f"  PostgreSQL Message: {db_err.pgerror}", file=sys.stderr)
-            conn.rollback()
-            continue
-        except Exception as e:
-            print(f"\n[GENERAL ERROR] Row {idx} failed: {e}", file=sys.stderr)
-            conn.rollback()
-            continue
+            try:
+                # Generate embedding for comment
+                embedding = model.encode(comment_text).tolist()
 
-        if (idx + 1) % 10 == 0 or (idx + 1) == len(comments):
-            print(f"Processed {idx + 1}/{len(comments)} comments...")
+                cursor.execute("""
+                    INSERT INTO facebook_comments (comment_id, parent_post_id, author_name, post_url, content, text_embedding)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (comment_id) DO NOTHING;
+                """, (comment_id, parent_post_id, author_name, comment_url, comment_text, embedding))
+                if cursor.rowcount > 0:
+                    comments_inserted += 1
+                conn.commit()
+            except Exception as e:
+                print(f"Error inserting comment {comment_id}: {e}")
+                conn.rollback()
+                continue
 
-    # Commit changes and close connection
-    try:
-        conn.commit()
-        cursor.close()
-        conn.close()
-        print("\n--- Seeding Summary ---")
-        print(f"Total processed comments: {len(comments)}")
-        print(f"Successfully inserted/verified: {inserted_count}")
-        print(f"Skipped (empty content): {skipped_count}")
-        print("Database seeding completed successfully.")
-    except Exception as e:
-        print(f"CRITICAL ERROR: Failed to commit database transactions: {e}", file=sys.stderr)
+            if (idx + 1) % 50 == 0 or (idx + 1) == len(data):
+                print(f"Processed {idx + 1}/{len(data)} comments. Comments inserted: {comments_inserted}")
+
+    cursor.close()
+    conn.close()
+    print("\n--- Seeding Summary ---")
+    print(f"Total items processed: {len(data)}")
+    print(f"New posts inserted: {posts_inserted}")
+    print(f"New comments inserted (with embeddings): {comments_inserted}")
+    print(f"Comments skipped (empty): {skipped_comments}")
+    print("Database seeding completed successfully.")
 
 if __name__ == "__main__":
     seed_database()
