@@ -24,18 +24,23 @@ DB_CONFIG = {
 class SearchQuery(BaseModel):
     query: str
 
+def get_model(app_instance: FastAPI):
+    if not hasattr(app_instance.state, "model") or app_instance.state.model is None:
+        logger.info("Lazy loading SentenceTransformer model 'all-MiniLM-L6-v2'...")
+        try:
+            app_instance.state.model = SentenceTransformer("all-MiniLM-L6-v2")
+            logger.info("Model loaded successfully.")
+        except Exception as e:
+            logger.critical(f"Failed to load SentenceTransformer model: {e}")
+            raise e
+    return app_instance.state.model
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Load SentenceTransformer model at startup
-    logger.info("Loading SentenceTransformer model 'all-MiniLM-L6-v2'...")
-    try:
-        app.state.model = SentenceTransformer("all-MiniLM-L6-v2")
-        logger.info("Model loaded successfully.")
-    except Exception as e:
-        logger.critical(f"Failed to load SentenceTransformer model: {e}")
-        raise e
+    # Initialize model to None for instant port binding on startup
+    app.state.model = None
+    logger.info("Service started. Model will be lazy-loaded on the first query.")
     yield
-    # Cleanup if necessary (none required here)
 
 app = FastAPI(title="GuineaPigDoctor Diagnostics Service", lifespan=lifespan)
 
@@ -144,9 +149,9 @@ async def search_problems(payload: SearchQuery):
     if not query_text:
         raise HTTPException(status_code=400, detail="Query text cannot be empty.")
 
-    # 1. Generate embedding for query
+    # 1. Generate embedding for query (lazy-loading model if necessary)
     try:
-        model = app.state.model
+        model = get_model(app)
         query_embedding = model.encode(query_text).tolist()
     except Exception as e:
         logger.error(f"Error generating query embedding: {e}")
@@ -242,9 +247,9 @@ async def search_problems_hybrid(payload: SearchQuery):
     if not query_text:
         raise HTTPException(status_code=400, detail="Query text cannot be empty.")
 
-    # 1. Generate embedding for query
+    # 1. Generate embedding for query (lazy-loading model if necessary)
     try:
-        model = app.state.model
+        model = get_model(app)
         query_embedding = model.encode(query_text).tolist()
     except Exception as e:
         logger.error(f"Error generating query embedding: {e}")
