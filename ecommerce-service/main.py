@@ -72,61 +72,10 @@ def reload_products_cache():
         if not hasattr(app.state, "cached_products"):
             app.state.cached_products = []
 
-def register_printify_webhooks():
-    """Automatically registers required printify webhooks on startup if running on Render."""
-    external_url = os.getenv("RENDER_EXTERNAL_URL")
-    if not external_url:
-        logger.info("RENDER_EXTERNAL_URL environment variable not set; skipping automatic webhook registration (development mode).")
-        return
-        
-    webhook_url = f"{external_url.rstrip('/')}/api/webhooks/printify"
-    logger.info(f"Checking Printify webhook registrations for URL: {webhook_url}")
-    
-    if not API_TOKEN or not SHOP_ID:
-        logger.error("Printify credentials missing; skipping webhook registration.")
-        return
-        
-    headers = {
-        "Authorization": f"Bearer {API_TOKEN}",
-        "Content-Type": "application/json",
-        "User-Agent": "GuineaPigDoctour Webhook Registrar"
-    }
-    
-    url = f"https://api.printify.com/v1/shops/{SHOP_ID}/webhooks.json"
-    try:
-        # 1. Fetch current webhook registrations
-        response = requests.get(url, headers=headers, timeout=10)
-        if not response.ok:
-            logger.error(f"Failed to fetch Printify webhooks: {response.text}")
-            return
-            
-        existing = response.json()
-        registered_topics = {w["topic"] for w in existing if w["url"] == webhook_url}
-        
-        # 2. Register missing topics
-        topics_to_register = ["shop:product:published", "shop:product:updated", "shop:product:deleted"]
-        for topic in topics_to_register:
-            if topic in registered_topics:
-                logger.info(f"Printify webhook already registered for topic: {topic}")
-                continue
-                
-            logger.info(f"Registering Webhook: topic={topic} -> url={webhook_url}")
-            reg_payload = {"url": webhook_url, "topic": topic}
-            reg_response = requests.post(url, json=reg_payload, headers=headers, timeout=10)
-            if reg_response.ok:
-                logger.info(f"Successfully registered webhook for topic: {topic}")
-            else:
-                logger.error(f"Failed to register webhook for topic {topic}: {reg_response.text}")
-    except Exception as e:
-        logger.error(f"Error registering webhooks: {e}")
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Initialize cache on startup
     reload_products_cache()
-    # Register webhooks asynchronously in a background thread to prevent startup delays
-    import threading
-    threading.Thread(target=register_printify_webhooks, daemon=True).start()
     yield
 
 app = FastAPI(title="Guinea Pig Platform E-Commerce POD Service", lifespan=lifespan)
@@ -160,92 +109,10 @@ async def get_products():
 # ----------------------------------------------------
 # 1.1 Printify Webhook Synchronization Receiver
 # ----------------------------------------------------
-def sync_product_from_printify(product_id: str):
-    if not API_TOKEN or not SHOP_ID:
-        return
-        
-    url = f"https://api.printify.com/v1/shops/{SHOP_ID}/products/{product_id}.json"
-    try:
-        response = requests.get(url, headers=get_printify_headers(), timeout=15)
-        if response.ok:
-            data = response.json()
-            conn = get_db_connection()
-            cursor = conn.cursor()
-            cursor.execute("""
-                INSERT INTO products (product_id, raw_data, updated_at)
-                VALUES (%s, %s, CURRENT_TIMESTAMP)
-                ON CONFLICT(product_id) DO UPDATE SET
-                    raw_data = EXCLUDED.raw_data,
-                    updated_at = CURRENT_TIMESTAMP
-            """, (product_id, json.dumps(data)))
-            conn.commit()
-            conn.close()
-            logger.info(f"Successfully synced product {product_id} via webhook")
-            reload_products_cache()
-        elif response.status_code == 404:
-            # If product is deleted in printify, remove from local DB
-            conn = get_db_connection()
-            cursor = conn.cursor()
-            cursor.execute("DELETE FROM products WHERE product_id = %s", (product_id,))
-            conn.commit()
-            conn.close()
-            logger.info(f"Removed deleted product {product_id} from local DB")
-            reload_products_cache()
-    except Exception as e:
-        logger.error(f"Failed to sync product {product_id} from Printify: {e}")
-
-_webhook_verification_warned = False
-
-@app.post("/api/webhooks/printify")
-async def printify_webhook(request: Request, background_tasks: BackgroundTasks):
-    raw_body = await request.body()
-
-    # Verify the webhook signature when a secret is configured
-    webhook_secret = os.getenv("PRINTIFY_WEBHOOK_SECRET")
-    if webhook_secret:
-        signature = request.headers.get("X-Pfy-Signature", "")
-        expected = hmac.new(webhook_secret.encode(), raw_body, hashlib.sha256).hexdigest()
-        if not hmac.compare_digest(expected, signature):
-            logger.warning("Printify webhook signature mismatch; rejecting request.")
-            raise HTTPException(status_code=401, detail="Invalid webhook signature.")
-    else:
-        global _webhook_verification_warned
-        if not _webhook_verification_warned:
-            logger.warning("PRINTIFY_WEBHOOK_SECRET not set; webhook signature verification is disabled (dev mode).")
-            _webhook_verification_warned = True
-
-    try:
-        payload = json.loads(raw_body)
-        logger.info(f"Received Printify webhook: {payload.get('type')}")
-        
-        event_type = payload.get("type", "")
-        # Remove shop: prefix if it exists to handle all format types
-        normalized_event = event_type.replace("shop:", "")
-        data = payload.get("data", {})
-        resource = payload.get("resource", {})
-        product_id = data.get("id") or resource.get("id")
-        
-        if normalized_event in ["product:publish:success", "product:published", "product:updated", "product:created"]:
-            if product_id:
-                background_tasks.add_task(sync_product_from_printify, product_id)
-                
-        elif normalized_event == "product:deleted":
-            if product_id:
-                # If deleted, remove from DB immediately to avoid useless 404 API calls
-                conn = get_db_connection()
-                cursor = conn.cursor()
-                cursor.execute("DELETE FROM products WHERE product_id = %s", (product_id,))
-                conn.commit()
-                conn.close()
-                logger.info(f"Removed deleted product {product_id} from local DB directly via webhook")
-                reload_products_cache()
-
-        # Immediately return 200 OK to acknowledge and clear "Publishing" state
-        return {"status": "success", "message": "Webhook acknowledged"}
-    except Exception as e:
-        logger.error(f"Webhook processing error: {e}")
-        # Return 200 to acknowledge Printify webhook despite local error
-        return {"status": "error", "message": str(e)}
+# ----------------------------------------------------
+# 1.1 Printify Webhook Synchronization Receiver (Decommissioned)
+# Webhook processing has been moved to Vercel/Next.js for serverless reliability.
+# ----------------------------------------------------
 
 # ----------------------------------------------------
 # 2. PIL-based local AI Style filters
