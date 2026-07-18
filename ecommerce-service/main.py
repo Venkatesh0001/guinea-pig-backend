@@ -4,12 +4,10 @@ import json
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import base64
-import hmac
-import hashlib
 import logging
 from typing import Dict, Any
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Request, BackgroundTasks
+from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image, ImageEnhance, ImageFilter, ImageOps
 import requests

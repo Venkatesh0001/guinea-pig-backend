@@ -1,8 +1,13 @@
-import { NextResponse } from 'next/server';
-import { supabase } from '@/utils/supabaseClient';
+import { NextResponse, after } from 'next/server';
+import { getSupabaseAdmin } from '@/utils/supabaseAdmin';
+
+// Valid Printify product topics (https://developers.printify.com/#product-events):
+// product:created, product:updated, product:deleted, product:publish:started
+const SYNC_EVENTS = ['product:created', 'product:updated', 'product:publish:started'];
+const DELETE_EVENTS = ['product:deleted'];
 
 export async function GET(request) {
-  return new NextResponse(null, { status: 200 });
+  return NextResponse.json({ status: "success", message: "Webhook GET validated" });
 }
 
 export async function HEAD(request) {
@@ -10,87 +15,97 @@ export async function HEAD(request) {
 }
 
 export async function POST(request) {
+  const rawText = await request.text();
+
+  // Printify validation pings may be empty or non-JSON — always 200 them
+  if (!rawText) {
+    return NextResponse.json({ status: "success", message: "Webhook validated (empty)" });
+  }
+
+  let payload;
   try {
-    const rawText = await request.text();
-    // Printify validation ping is either empty or an empty JSON object
-    if (!rawText || rawText.trim() === "" || rawText.trim() === "{}") {
-      return new NextResponse(null, { status: 200 });
-    }
+    payload = JSON.parse(rawText);
+  } catch (parseError) {
+    return NextResponse.json({ status: "success", message: "Webhook validated (non-JSON)" });
+  }
 
-    let payload;
+  // ACK immediately so Printify always gets a fast 200; sync work runs after the response is sent
+  after(async () => {
     try {
-      payload = JSON.parse(rawText);
-    } catch (parseError) {
-      return new NextResponse(null, { status: 200 });
+      await processWebhookEvent(payload);
+    } catch (error) {
+      console.error("Webhook background processing failed:", error);
     }
+  });
 
-    if (Object.keys(payload).length === 0) {
-      return new NextResponse(null, { status: 200 });
-    }
+  return NextResponse.json({ status: "success", message: "Webhook acknowledged" });
+}
 
-    const eventType = payload.type || "";
-    const normalizedEvent = eventType.replace("shop:", "");
-    
-    const data = payload.data || {};
-    const resource = payload.resource || {};
-    const productId = data.id || resource.id;
+async function processWebhookEvent(payload) {
+  // Printify event shape: { id, type, created_at, resource: { id, type, data } }
+  const eventType = payload.type || "";
+  const resource = payload.resource || {};
+  const productId = resource.id || payload.data?.id;
 
-    if (!productId) {
-      return NextResponse.json({ status: "ignored", message: "No product ID found" });
-    }
+  console.log(`Printify webhook received: type=${eventType}, product=${productId || 'n/a'}`);
 
-    if (["product:publish:success", "product:published", "product:updated", "product:created"].includes(normalizedEvent)) {
-      // Fetch fresh product data from Printify
-      const API_TOKEN = process.env.PRINTIFY_API_TOKEN;
-      const SHOP_ID = process.env.PRINTIFY_SHOP_ID;
-      
-      if (!API_TOKEN || !SHOP_ID) {
-        console.error("Missing Printify API keys in Vercel environment.");
-        return NextResponse.json({ status: "error", message: "Server misconfigured" }, { status: 500 });
+  if (!productId) {
+    return;
+  }
+
+  if (!SYNC_EVENTS.includes(eventType) && !DELETE_EVENTS.includes(eventType)) {
+    return;
+  }
+
+  const API_TOKEN = process.env.PRINTIFY_API_TOKEN;
+  const SHOP_ID = process.env.PRINTIFY_SHOP_ID;
+
+  if (!API_TOKEN || !SHOP_ID) {
+    console.error("Missing Printify API keys in environment.");
+    return;
+  }
+
+  const supabase = getSupabaseAdmin();
+
+  if (SYNC_EVENTS.includes(eventType)) {
+    // Fetch fresh product data from Printify
+    const url = `https://api.printify.com/v1/shops/${SHOP_ID}/products/${productId}.json`;
+    const response = await fetch(url, {
+      headers: {
+        "Authorization": `Bearer ${API_TOKEN}`,
+        "Content-Type": "application/json",
+        "User-Agent": "GuineaPigDoctor Vercel Webhook"
       }
+    });
 
-      const url = `https://api.printify.com/v1/shops/${SHOP_ID}/products/${productId}.json`;
-      const response = await fetch(url, {
-        headers: {
-          "Authorization": `Bearer ${API_TOKEN}`,
-          "Content-Type": "application/json"
-        }
-      });
+    if (response.ok) {
+      const productData = await response.json();
 
-      if (response.ok) {
-        const productData = await response.json();
-        
-        // Upsert to Supabase
-        const { error } = await supabase.from('products').upsert({
-          product_id: productId,
-          raw_data: JSON.stringify(productData),
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'product_id' });
-        
-        if (error) {
-          console.error("Failed to upsert to Supabase:", error);
-          return NextResponse.json({ status: "error", message: "DB Error" }, { status: 500 });
-        }
-        
-        console.log(`Successfully synced product ${productId} to Supabase`);
-      } else if (response.status === 404) {
-        // If 404, product was likely deleted in Printify
-        await supabase.from('products').delete().eq('product_id', productId);
-        console.log(`Product ${productId} deleted from DB (404 from Printify API)`);
-      }
-    } else if (normalizedEvent === "product:deleted") {
-      // Delete from DB immediately
-      const { error } = await supabase.from('products').delete().eq('product_id', productId);
+      const { error } = await supabase.from('products').upsert({
+        product_id: productId,
+        raw_data: JSON.stringify(productData),
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'product_id' });
+
       if (error) {
-        console.error("Failed to delete from Supabase:", error);
+        console.error("Failed to upsert to Supabase:", error);
       } else {
-        console.log(`Successfully deleted product ${productId} from DB`);
+        console.log(`Successfully synced product ${productId} to Supabase`);
       }
+    } else if (response.status === 404) {
+      // Product no longer exists in Printify — remove locally
+      await supabase.from('products').delete().eq('product_id', productId);
+      console.log(`Product ${productId} deleted from DB (404 from Printify API)`);
+    } else {
+      console.error(`Printify product fetch failed (${response.status}) for ${productId}`);
     }
-
-    return NextResponse.json({ status: "success", message: "Webhook acknowledged" });
-  } catch (error) {
-    console.error("Webhook processing error:", error);
-    return NextResponse.json({ status: "error", message: error.message }, { status: 500 });
+  } else {
+    // product:deleted — remove from DB immediately
+    const { error } = await supabase.from('products').delete().eq('product_id', productId);
+    if (error) {
+      console.error("Failed to delete from Supabase:", error);
+    } else {
+      console.log(`Successfully deleted product ${productId} from DB`);
+    }
   }
 }

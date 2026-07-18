@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAuthUser } from '@/utils/serverAuth';
+import { getSupabaseAdmin } from '@/utils/supabaseAdmin';
 
 export async function GET(request, { params }) {
   try {
@@ -10,6 +11,28 @@ export async function GET(request, { params }) {
 
     const { path } = await params;
     const pathStr = path.join('/');
+
+    // The product catalog lives in Supabase (kept in sync by Printify webhooks).
+    // Serve it directly instead of proxying to the Python service.
+    if (pathStr === 'products' && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      const supabase = getSupabaseAdmin();
+      const { data, error } = await supabase
+        .from('products')
+        .select('raw_data')
+        .order('updated_at', { ascending: false });
+
+      if (error) {
+        console.error('Failed to fetch products from Supabase:', error);
+        return NextResponse.json({ error: 'Failed to retrieve catalog.' }, { status: 500 });
+      }
+
+      return NextResponse.json({
+        data: (data || []).map(row =>
+          typeof row.raw_data === 'string' ? JSON.parse(row.raw_data) : row.raw_data
+        )
+      });
+    }
+
     const searchParams = new URL(request.url).search;
     const ecommerceBaseUrl = process.env.ECOMMERCE_SERVICE_URL || 'http://127.0.0.1:8001';
     const url = `${ecommerceBaseUrl}/api/ecommerce/${pathStr}${searchParams}`;
