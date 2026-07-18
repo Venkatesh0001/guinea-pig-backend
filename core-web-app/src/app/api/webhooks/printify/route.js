@@ -3,7 +3,13 @@ import { supabase } from '@/utils/supabaseClient';
 
 export async function POST(request) {
   try {
-    const payload = await request.json();
+    const rawText = await request.text();
+    if (!rawText) {
+      // Printify sends an empty POST request immediately during registration to validate the URL.
+      return NextResponse.json({ status: "success", message: "Webhook validated" });
+    }
+
+    const payload = JSON.parse(rawText);
     const eventType = payload.type || "";
     const normalizedEvent = eventType.replace("shop:", "");
     
