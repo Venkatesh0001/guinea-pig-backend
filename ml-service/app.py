@@ -110,7 +110,7 @@ def load_model_once():
     weights_path = "fgvc_gender_best_1.pth"
     
     if not os.path.exists(weights_path):
-        weights_url = os.getenv("WEIGHTS_URL")
+        weights_url = os.getenv("WEIGHTS_URL", "https://github.com/Venkatesh0001/guinea-pig-backend/releases/download/v1.0.0/fgvc_gender_best_1.pth")
         if weights_url:
             logger.info(f"Model weights not found. Downloading from WEIGHTS_URL: {weights_url}")
             try:
