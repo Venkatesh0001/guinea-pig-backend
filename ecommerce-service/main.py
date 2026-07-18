@@ -86,7 +86,7 @@ async def get_products():
         return {"data": products}
     except Exception as e:
         logger.error(f"Failed to fetch products from DB: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve local catalog.")
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve local catalog. Error: {str(e)}")
 
 # ----------------------------------------------------
 # 1.1 Printify Webhook Synchronization Receiver
