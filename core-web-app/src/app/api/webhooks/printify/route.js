@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabase } from '@/utils/supabaseClient';
 
 export async function GET(request) {
-  return NextResponse.json({ status: "success", message: "Webhook GET validated" });
+  return new NextResponse(null, { status: 200 });
 }
 
 export async function HEAD(request) {
@@ -12,16 +12,20 @@ export async function HEAD(request) {
 export async function POST(request) {
   try {
     const rawText = await request.text();
-    if (!rawText) {
-      return NextResponse.json({ status: "success", message: "Webhook validated (empty)" });
+    // Printify validation ping is either empty or an empty JSON object
+    if (!rawText || rawText.trim() === "" || rawText.trim() === "{}") {
+      return new NextResponse(null, { status: 200 });
     }
 
     let payload;
     try {
       payload = JSON.parse(rawText);
     } catch (parseError) {
-      // Printify might send form-urlencoded or other non-JSON data during validation pings
-      return NextResponse.json({ status: "success", message: "Webhook validated (non-JSON)" });
+      return new NextResponse(null, { status: 200 });
+    }
+
+    if (Object.keys(payload).length === 0) {
+      return new NextResponse(null, { status: 200 });
     }
 
     const eventType = payload.type || "";
