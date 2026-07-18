@@ -13,7 +13,7 @@ export default function RecommendedProducts() {
 
   // Filter States
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [priceRange, setPriceRange] = useState(50); // Max price threshold
+  const [priceRange, setPriceRange] = useState(150); // Max price threshold
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [searchBrandQuery, setSearchBrandQuery] = useState("");
   const [sortBy, setSortBy] = useState("Popularity"); // Popularity, LowToHigh, HighToLow, Newest
