@@ -1,15 +1,29 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/utils/supabaseClient';
 
+export async function GET(request) {
+  return NextResponse.json({ status: "success", message: "Webhook GET validated" });
+}
+
+export async function HEAD(request) {
+  return new NextResponse(null, { status: 200 });
+}
+
 export async function POST(request) {
   try {
     const rawText = await request.text();
     if (!rawText) {
-      // Printify sends an empty POST request immediately during registration to validate the URL.
-      return NextResponse.json({ status: "success", message: "Webhook validated" });
+      return NextResponse.json({ status: "success", message: "Webhook validated (empty)" });
     }
 
-    const payload = JSON.parse(rawText);
+    let payload;
+    try {
+      payload = JSON.parse(rawText);
+    } catch (parseError) {
+      // Printify might send form-urlencoded or other non-JSON data during validation pings
+      return NextResponse.json({ status: "success", message: "Webhook validated (non-JSON)" });
+    }
+
     const eventType = payload.type || "";
     const normalizedEvent = eventType.replace("shop:", "");
     
