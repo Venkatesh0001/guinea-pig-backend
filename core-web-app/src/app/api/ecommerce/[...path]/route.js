@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAuthUser } from '@/utils/serverAuth';
+
+export const maxDuration = 60;
 import { getSupabaseAdmin } from '@/utils/supabaseAdmin';
 
 export async function GET(request, { params }) {

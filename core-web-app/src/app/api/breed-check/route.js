@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getAuthUser } from '@/utils/serverAuth';
 
+export const maxDuration = 60;
+
 export async function POST(request) {
   try {
     const user = await getAuthUser(request);
