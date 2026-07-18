@@ -222,7 +222,8 @@ async def printify_webhook(request: Request, background_tasks: BackgroundTasks):
         # Remove shop: prefix if it exists to handle all format types
         normalized_event = event_type.replace("shop:", "")
         data = payload.get("data", {})
-        product_id = data.get("id")
+        resource = payload.get("resource", {})
+        product_id = data.get("id") or resource.get("id")
         
         if normalized_event in ["product:publish:success", "product:published", "product:updated", "product:created"]:
             if product_id:

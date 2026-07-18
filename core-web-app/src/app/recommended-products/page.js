@@ -53,18 +53,18 @@ export default function RecommendedProducts() {
     }
   }, [selectedVariantId, selectedProduct]);
 
-  // Fetch Printify products via local proxy
+  // Fetch Printify products directly from Supabase (Bypasses cold-start latency)
   useEffect(() => {
     async function fetchProducts() {
       try {
         setLoading(true);
-        const res = await apiFetch("/api/ecommerce/products");
-        if (!res.ok) {
-          const errData = await res.json();
-          throw new Error(errData.error || "Server error retrieving product catalog.");
+        const { data: dbProducts, error: dbError } = await supabase.from('products').select('raw_data').order('updated_at', { ascending: false });
+        
+        if (dbError) {
+          throw new Error(dbError.message || "Database error retrieving product catalog.");
         }
-        const data = await res.json();
-        const productList = data.data || data || [];
+        
+        const productList = dbProducts.map(row => JSON.parse(row.raw_data));
         setProducts(productList);
         setFilteredProducts(productList);
         setError("");
@@ -458,6 +458,11 @@ export default function RecommendedProducts() {
                     const minPrice = prices.length > 0 ? Math.min(...prices) / 100 : 0;
                     
                     // Create simulated discount pricing metrics matching Flipkart
+                    // Check if product is out of stock (all variants disabled)
+                    const outOfStock = product.variants && product.variants.length > 0 
+                      ? product.variants.every(v => v.is_enabled === false && v.is_available === false)
+                      : false;
+                      
                     const originalPrice = minPrice * 1.5;
                     const discountPct = 33;
                     const mockBrand = getMockBrandName(product.id);
@@ -521,23 +526,31 @@ export default function RecommendedProducts() {
                               </span>
                             </div>
 
-                            {/* Tags: 'Only 3 left' */}
+                            {/* Tags: Stock Status */}
                             <div className="flex items-center space-x-2 pt-1">
-                              <span className="text-[9px] font-bold text-rose-450 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded">
-                                Only 3 left
-                              </span>
-                              <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
-                                Save 5%
-                              </span>
+                              {outOfStock ? (
+                                <span className="text-[9px] font-bold text-slate-400 bg-slate-500/10 border border-slate-500/20 px-2 py-0.5 rounded">
+                                  Out of Stock
+                                </span>
+                              ) : (
+                                <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
+                                  Available
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>                        {/* Hover slide-up button layout */}
                         <div className="px-4 pb-4 pt-2">
                           <button
-                            onClick={() => handleOpenCustomize(product)}
-                            className="w-full py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-bold shadow-md shadow-indigo-500/10 transition-all flex items-center justify-center gap-1 cursor-pointer"
+                            onClick={() => !outOfStock && handleOpenCustomize(product)}
+                            disabled={outOfStock}
+                            className={`w-full py-2.5 rounded-xl text-xs font-bold shadow-md transition-all flex items-center justify-center gap-1 ${
+                              outOfStock 
+                                ? 'bg-slate-700 text-slate-400 cursor-not-allowed' 
+                                : 'bg-indigo-500 hover:bg-indigo-600 text-white shadow-indigo-500/10 cursor-pointer'
+                            }`}
                           >
-                            <span>🛒</span> Order
+                            <span>🛒</span> {outOfStock ? "Unavailable" : "Order"}
                           </button>
                         </div>
                       </div>
