@@ -236,6 +236,165 @@ async def search_problems(payload: SearchQuery):
         "results": formatted_results[:5]
     }
 
+@app.post("/search_hybrid")
+async def search_problems_hybrid(payload: SearchQuery):
+    query_text = payload.query.strip()
+    if not query_text:
+        raise HTTPException(status_code=400, detail="Query text cannot be empty.")
+
+    # 1. Generate embedding for query
+    try:
+        model = app.state.model
+        query_embedding = model.encode(query_text).tolist()
+    except Exception as e:
+        logger.error(f"Error generating query embedding: {e}")
+        raise HTTPException(status_code=500, detail="Failed to vectorize the query.")
+
+    # 2. Connect to database and run hybrid search
+    conn = None
+    cursor = None
+    try:
+        db_url = os.getenv("DATABASE_URL")
+        if db_url:
+            if db_url.startswith("postgres://"):
+                db_url = db_url.replace("postgres://", "postgresql://", 1)
+            conn = psycopg2.connect(db_url)
+        else:
+            conn = psycopg2.connect(**DB_CONFIG)
+            
+        cursor = conn.cursor()
+        
+        # A. Hybrid comments query: vector distance + FTS keyword matching
+        cursor.execute("""
+            SELECT comment_id, parent_post_id, author_name, post_url, content, 
+                   (text_embedding <=> %s::vector) AS distance,
+                   (to_tsvector('english', content) @@ plainto_tsquery('english', %s)) AS ts_match
+            FROM facebook_comments
+            WHERE (text_embedding <=> %s::vector) < 0.6
+               OR to_tsvector('english', content) @@ plainto_tsquery('english', %s)
+            ORDER BY distance ASC
+            LIMIT 15;
+        """, (query_embedding, query_text, query_embedding, query_text))
+        
+        comment_results = cursor.fetchall()
+        
+        # B. Lexical posts query: search parent posts directly for keywords
+        cursor.execute("""
+            SELECT fb_post_id, post_url, content, legacy_id
+            FROM facebook_posts
+            WHERE to_tsvector('english', content) @@ plainto_tsquery('english', %s)
+            LIMIT 5;
+        """, (query_text,))
+        
+        post_results = cursor.fetchall()
+        
+        seen_threads = set()
+        formatted_results = []
+        
+        # 1. Process exact parent post matches first (highest relevance for direct keyword queries)
+        for row in post_results:
+            post_id, post_url, content, legacy_id = row
+            if legacy_id in seen_threads:
+                continue
+                
+            # Fetch comments under this matched post to show as thread replies
+            cursor.execute("""
+                SELECT author_name, content FROM facebook_comments
+                WHERE parent_post_id = %s
+                LIMIT 3;
+            """, (legacy_id,))
+            comments_rows = cursor.fetchall()
+            other_replies = [
+                {"author": r[0], "content": r[1]} for r in comments_rows
+            ]
+            
+            advice_info = get_expert_advice(content, query_text)
+            
+            formatted_results.append({
+                "comment_id": legacy_id,
+                "parent_post_id": legacy_id,
+                "url": post_url,
+                "matched_comment": {
+                    "author": "Post Author",
+                    "content": content
+                },
+                "parent_post_content": content,
+                "other_replies": other_replies,
+                "score": 1.0,  # Exact post lexical match gets top score
+                "category": advice_info["category"],
+                "advice": advice_info["advice"]
+            })
+            seen_threads.add(legacy_id)
+            
+        # 2. Process matching comments (vector + FTS matches)
+        for row in comment_results:
+            comment_id, parent_post_id, author_name, post_url, content, distance, ts_match = row
+            if parent_post_id in seen_threads:
+                continue
+                
+            similarity_score = 1.0 - float(distance) if distance is not None else 0.0
+            
+            # Boost score by +0.15 for exact lexical keyword matches on comment content
+            if ts_match:
+                similarity_score = min(1.0, similarity_score + 0.15)
+            
+            # Filter results by the 50% threshold after boost
+            if similarity_score > 0.50:
+                # Fetch parent post content if it exists
+                cursor.execute("""
+                    SELECT content FROM facebook_posts 
+                    WHERE legacy_id = %s LIMIT 1;
+                """, (parent_post_id,))
+                parent_row = cursor.fetchone()
+                parent_post_content = parent_row[0] if parent_row else None
+                
+                # Fetch other comments in this thread to show as replies
+                cursor.execute("""
+                    SELECT author_name, content FROM facebook_comments
+                    WHERE parent_post_id = %s AND comment_id != %s
+                    LIMIT 3;
+                """, (parent_post_id, comment_id))
+                other_comments_rows = cursor.fetchall()
+                other_replies = [
+                    {"author": r[0], "content": r[1]} for r in other_comments_rows
+                ]
+                
+                advice_info = get_expert_advice(content, query_text)
+                
+                formatted_results.append({
+                    "comment_id": comment_id,
+                    "parent_post_id": parent_post_id,
+                    "url": post_url,
+                    "matched_comment": {
+                        "author": author_name,
+                        "content": content
+                    },
+                    "parent_post_content": parent_post_content,
+                    "other_replies": other_replies,
+                    "score": round(similarity_score, 4),
+                    "category": advice_info["category"],
+                    "advice": advice_info["advice"]
+                })
+                seen_threads.add(parent_post_id)
+
+    except Exception as e:
+        logger.error(f"Database query or lookup failed: {e}")
+        raise HTTPException(status_code=500, detail="Database search failed.")
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+    # Sort results by score descending (so post matches at 1.0 are ranked first)
+    formatted_results.sort(key=lambda x: x["score"], reverse=True)
+
+    # Return top 5 matches after filtering
+    return {
+        "query": query_text,
+        "results": formatted_results[:5]
+    }
+
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}

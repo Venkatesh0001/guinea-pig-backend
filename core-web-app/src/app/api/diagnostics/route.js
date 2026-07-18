@@ -18,7 +18,7 @@ export async function POST(request) {
     }
 
     const backendBaseUrl = process.env.DIAGNOSTICS_SERVICE_URL || 'http://127.0.0.1:8002';
-    const backendUrl = `${backendBaseUrl}/search`;
+    const backendUrl = `${backendBaseUrl}/search_hybrid`;
     console.log(`Forwarding diagnostics query to FastAPI: ${backendUrl}`);
 
     const response = await fetch(backendUrl, {
