@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { supabase } from "@/utils/supabaseClient";
+import { apiFetch } from "@/utils/apiFetch";
 
 export default function RecommendedProducts() {
   const [products, setProducts] = useState([]);
@@ -57,7 +58,7 @@ export default function RecommendedProducts() {
     async function fetchProducts() {
       try {
         setLoading(true);
-        const res = await fetch("/api/ecommerce/products");
+        const res = await apiFetch("/api/ecommerce/products");
         if (!res.ok) {
           const errData = await res.json();
           throw new Error(errData.error || "Server error retrieving product catalog.");
@@ -216,7 +217,7 @@ export default function RecommendedProducts() {
         },
       };
 
-      const orderRes = await fetch("/api/ecommerce/submit-order", {
+      const orderRes = await apiFetch("/api/ecommerce/submit-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderPayload),

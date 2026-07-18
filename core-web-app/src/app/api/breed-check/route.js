@@ -1,7 +1,13 @@
 import { NextResponse } from 'next/server';
+import { getAuthUser } from '@/utils/serverAuth';
 
 export async function POST(request) {
   try {
+    const user = await getAuthUser(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const formData = await request.formData();
     const file = formData.get('file');
 
@@ -21,6 +27,7 @@ export async function POST(request) {
     const response = await fetch(fastapiUrl, {
       method: 'POST',
       body: forwardFormData,
+      signal: AbortSignal.timeout(120000),
     });
 
     if (!response.ok) {
@@ -29,7 +36,7 @@ export async function POST(request) {
       try {
         const parsedError = JSON.parse(errorBody);
         return NextResponse.json(
-          { error: parsedError.detail || `ML Service returned status ${response.status}` },
+          { error: parsedError.error || parsedError.detail || `ML Service returned status ${response.status}` },
           { status: response.status }
         );
       } catch {
@@ -44,6 +51,12 @@ export async function POST(request) {
     return NextResponse.json(data);
   } catch (error) {
     console.error('Error in secure breed-check API bridge route:', error);
+    if (error.name === 'TimeoutError' || error.name === 'AbortError') {
+      return NextResponse.json(
+        { error: 'Upstream service timed out' },
+        { status: 504 }
+      );
+    }
     return NextResponse.json(
       { error: `Internal Server Error in Next.js Bridge: ${error.message || error}` },
       { status: 500 }

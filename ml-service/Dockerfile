@@ -31,5 +31,5 @@ ENV HOME=/home/user \
 # Expose port 7860 (Hugging Face Spaces default port)
 EXPOSE 7860
 
-# Start FastAPI server on port 7860
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860"]
+# Start Gradio server on port 7860
+CMD ["python", "app.py"]

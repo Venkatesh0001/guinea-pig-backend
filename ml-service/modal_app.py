@@ -7,7 +7,7 @@ import time
 import base64
 import logging
 import httpx
-from PIL import Image
+from PIL import Image, ImageOps
 import numpy as np
 
 # Define the Modal image with all dependencies
@@ -109,9 +109,11 @@ def get_model_classes():
 class GuineaPigModel:
     @modal.enter()
     def load_model(self):
+        import threading
         import torch
         from pytorch_grad_cam import GradCAM
         
+        self.lock = threading.Lock()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         logger.info(f"Loading model into {self.device}...")
         
@@ -132,25 +134,61 @@ class GuineaPigModel:
         
         logger.info("Model loaded successfully.")
 
-    @modal.fastapi_endpoint(method="POST")
-    async def predict_gender(self, request: Request):
+    def _run_inference(self, input_tensor, cropped_image):
         import torch
-        from torchvision import transforms
         from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
         from pytorch_grad_cam.utils.image import show_cam_on_image
         
+        with self.lock:
+            with torch.enable_grad():
+                outputs = self.model(input_tensor)
+                probs = torch.softmax(outputs, dim=1)
+                confidence, class_idx_tensor = torch.max(probs, dim=1)
+                
+                confidence_val = float(confidence.item())
+                class_idx = int(class_idx_tensor.item())
+                prediction_label = ["female", "male"][class_idx]
+                
+                targets = [ClassifierOutputTarget(class_idx)]
+                resized_crop = cropped_image.resize((224, 224))
+                rgb_img = np.array(resized_crop, dtype=np.float32) / 255.0
+                
+                grayscale_cam = self.cam(input_tensor=input_tensor, targets=targets)[0, :]
+                visualization = show_cam_on_image(rgb_img, grayscale_cam, use_rgb=True)
+                
+            cam_pil = Image.fromarray(visualization)
+            buffer = io.BytesIO()
+            cam_pil.save(buffer, format="JPEG")
+            cam_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+            
+            return {
+                "prediction": prediction_label,
+                "confidence": confidence_val,
+                "cam_image": f"data:image/jpeg;base64,{cam_base64}"
+            }
+
+    @modal.fastapi_endpoint(method="POST")
+    async def predict_gender(self, request: Request):
+        from starlette.concurrency import run_in_threadpool
+        from torchvision import transforms
+        
         form = await request.form()
         file = form.get("file")
-        x_pct = float(form.get("x_pct", 0.5))
-        y_pct = float(form.get("y_pct", 0.5))
-        box_scale = float(form.get("box_scale", 0.4))
+        try:
+            x_pct = float(form.get("x_pct", 0.5))
+            y_pct = float(form.get("y_pct", 0.5))
+            box_scale = float(form.get("box_scale", 0.4))
+        except (TypeError, ValueError):
+            return JSONResponse({"error": "x_pct, y_pct and box_scale must be numeric"}, status_code=400)
         
-        if not file:
+        if not file or not hasattr(file, "read"):
             return JSONResponse({"error": "No file uploaded"}, status_code=400)
             
         try:
             file_bytes = await file.read()
-            pil_image = Image.open(io.BytesIO(file_bytes)).convert("RGB")
+            if len(file_bytes) > 5 * 1024 * 1024:
+                return JSONResponse({"error": "File size exceeds 5MB limit"}, status_code=400)
+            pil_image = ImageOps.exif_transpose(Image.open(io.BytesIO(file_bytes))).convert("RGB")
         except Exception as e:
             return JSONResponse({"error": f"Invalid image: {e}"}, status_code=400)
             
@@ -178,32 +216,7 @@ class GuineaPigModel:
         input_tensor = preprocess(cropped_image).unsqueeze(0).to(self.device)
         
         try:
-            with torch.enable_grad():
-                outputs = self.model(input_tensor)
-                probs = torch.softmax(outputs, dim=1)
-                confidence, class_idx_tensor = torch.max(probs, dim=1)
-                
-                confidence_val = float(confidence.item())
-                class_idx = int(class_idx_tensor.item())
-                prediction_label = ["female", "male"][class_idx]
-                
-                targets = [ClassifierOutputTarget(class_idx)]
-                resized_crop = cropped_image.resize((224, 224))
-                rgb_img = np.array(resized_crop, dtype=np.float32) / 255.0
-                
-                grayscale_cam = self.cam(input_tensor=input_tensor, targets=targets)[0, :]
-                visualization = show_cam_on_image(rgb_img, grayscale_cam, use_rgb=True)
-                
-            cam_pil = Image.fromarray(visualization)
-            buffer = io.BytesIO()
-            cam_pil.save(buffer, format="JPEG")
-            cam_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
-            
-            return {
-                "prediction": prediction_label,
-                "confidence": confidence_val,
-                "cam_image": f"data:image/jpeg;base64,{cam_base64}"
-            }
+            return await run_in_threadpool(self._run_inference, input_tensor, cropped_image)
         except Exception as e:
             return JSONResponse({"error": f"Inference error: {e}"}, status_code=500)
 
@@ -270,11 +283,14 @@ Provide the response using the following structure:
             }]
         }
         
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            resp = await client.post(gemini_url, json=payload)
-            if not resp.is_success:
-                return JSONResponse({"error": f"Gemini API Error: {resp.text}"}, status_code=500)
-            data = resp.json()
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                resp = await client.post(gemini_url, json=payload)
+                if not resp.is_success:
+                    return JSONResponse({"error": f"Gemini API Error: {resp.text}"}, status_code=500)
+                data = resp.json()
+        except httpx.HTTPError:
+            return JSONResponse({"error": "Gemini request failed"}, status_code=500)
             
         try:
             text_response = data["candidates"][0]["content"]["parts"][0]["text"]

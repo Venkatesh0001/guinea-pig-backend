@@ -1,7 +1,13 @@
 import { NextResponse } from 'next/server';
+import { getAuthUser } from '@/utils/serverAuth';
 
 export async function POST(request) {
   try {
+    const user = await getAuthUser(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { query } = await request.json();
 
     if (!query || typeof query !== 'string' || !query.trim()) {
@@ -21,6 +27,7 @@ export async function POST(request) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ query }),
+      signal: AbortSignal.timeout(30000),
     });
 
     if (!response.ok) {
@@ -36,6 +43,12 @@ export async function POST(request) {
     return NextResponse.json(data);
   } catch (error) {
     console.error('Error in Next.js diagnostics API bridge:', error);
+    if (error.name === 'TimeoutError' || error.name === 'AbortError') {
+      return NextResponse.json(
+        { error: 'Upstream service timed out' },
+        { status: 504 }
+      );
+    }
     return NextResponse.json(
       { error: `Internal Server Error in Next.js Bridge: ${error.message || error}` },
       { status: 500 }

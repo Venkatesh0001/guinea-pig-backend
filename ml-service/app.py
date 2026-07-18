@@ -13,7 +13,7 @@ import base64
 import logging
 import httpx
 import gradio as gr
-from PIL import Image
+from PIL import Image, ImageOps
 import numpy as np
 import torch
 import torch.nn as nn
@@ -22,7 +22,7 @@ import torchvision.models as models
 from dotenv import load_dotenv
 
 # Load environment variables
-load_dotenv()
+load_dotenv(override=True)
 
 # Import pytorch-grad-cam components
 from pytorch_grad_cam import GradCAM
@@ -168,14 +168,14 @@ def predict_gender(file_path: str, x_pct: float, y_pct: float, box_scale: float)
         return {"error": "Model is not loaded."}
         
     try:
-        pil_image = Image.open(file_path).convert("RGB")
+        pil_image = ImageOps.exif_transpose(Image.open(file_path)).convert("RGB")
     except Exception as e:
         logger.error(f"Failed to open uploaded file as image: {e}")
         return {"error": f"Invalid image upload: {e}"}
 
-    x_pct = float(x_pct)
-    y_pct = float(y_pct)
-    box_scale = float(box_scale)
+    x_pct = float(x_pct) if x_pct is not None else 0.5
+    y_pct = float(y_pct) if y_pct is not None else 0.5
+    box_scale = float(box_scale) if box_scale is not None else 0.4
 
     W, H = pil_image.size
     logger.info(f"Original image size: {W}x{H}, Crop Center: ({x_pct}, {y_pct}), Scale: {box_scale}")
@@ -304,7 +304,6 @@ async def classify_breed(file_path: str):
     elif file_path.lower().endswith(".webp"):
         content_type = "image/webp"
 
-    load_dotenv(override=True)
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key or api_key == "YOUR_GEMINI_API_KEY_HERE":
         return {"error": "Gemini API Key is not configured on the backend server."}

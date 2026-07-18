@@ -5,3 +5,4 @@ fastapi
 uvicorn
 Pillow
 python-multipart
+numpy

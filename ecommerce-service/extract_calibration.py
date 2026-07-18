@@ -19,7 +19,11 @@ import requests
 # Disable SSL verification for image downloads
 ssl._create_default_https_context = ssl._create_unverified_context
 
-SCRATCH_DIR = r"C:\Users\venka\.gemini\antigravity\brain\a58667b7-5d8d-4465-99b0-cb7523aa4ac5\scratch"
+OUTPUT_DIR = os.getenv(
+    "CALIBRATION_OUTPUT_DIR",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "calibration_output")
+)
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
 def download_image(url):
@@ -144,7 +148,7 @@ def analyze_product(blueprint_id, print_provider_id, product_title):
                      bbox['right']+offset, bbox['bottom']+offset],
                     outline='red'
                 )
-            out = os.path.join(SCRATCH_DIR, f"cal_bp{blueprint_id}_img{idx}.jpg")
+            out = os.path.join(OUTPUT_DIR, f"cal_bp{blueprint_id}_img{idx}.jpg")
             annotated.save(out, quality=90)
             print(f"       Saved: {out}")
 
@@ -207,7 +211,7 @@ def main():
         print(f'        "back":  {{"fx": {front["fx"]}, "fy": {front["fy"]}, "fw": {front["fw"]}, "rotation": {front["rotation"]}}},')
         print(f"    }},")
 
-    out_path = os.path.join(SCRATCH_DIR, "calibration_matrix.json")
+    out_path = os.path.join(OUTPUT_DIR, "calibration_matrix.json")
     with open(out_path, 'w') as f:
         json.dump(all_calibrations, f, indent=2)
     print(f"\nSaved to: {out_path}")

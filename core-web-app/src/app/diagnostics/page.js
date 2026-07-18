@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/utils/supabaseClient";
+import { apiFetch } from "@/utils/apiFetch";
 
 export default function DiagnosticsPage() {
   const [query, setQuery] = useState("");
@@ -19,7 +20,7 @@ export default function DiagnosticsPage() {
     setResults([]);
 
     try {
-      const response = await fetch("/api/diagnostics", {
+      const response = await apiFetch("/api/diagnostics", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

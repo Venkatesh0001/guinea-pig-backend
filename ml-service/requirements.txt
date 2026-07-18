@@ -10,3 +10,4 @@ matplotlib
 grad-cam
 python-dotenv
 httpx
+gradio

@@ -77,7 +77,7 @@ export default function TalkToGuineaPig() {
       setCurrentTime(0);
       setAudioError("");
     }
-  }, [selectedIndex, isLocalMode]);
+  }, [selectedIndex, isLocalMode, uploadedFileUrl]);
 
   // Clean up Audio Context on unmount
   useEffect(() => {

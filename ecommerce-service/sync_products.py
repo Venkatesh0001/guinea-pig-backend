@@ -17,11 +17,11 @@ logging.basicConfig(
 )
 
 # Load configuration from environment file
-load_dotenv(r"E:\Guinea_Pig_UI\ecommerce-service\.env")
+load_dotenv()
 
 PRINTIFY_API_TOKEN = os.getenv("PRINTIFY_API_TOKEN")
 PRINTIFY_SHOP_ID = os.getenv("PRINTIFY_SHOP_ID")
-DATABASE_PATH = r"E:\Guinea_Pig_UI\ecommerce-service\products.db"
+DATABASE_PATH = os.getenv("DATABASE_PATH", os.path.join(os.path.dirname(os.path.abspath(__file__)), "products.db"))
 
 class DatabaseManager:
     """Manages database connection and CRUD operations for synchronized catalog."""
@@ -34,10 +34,8 @@ class DatabaseManager:
         try:
             self.conn = sqlite3.connect(self.db_path)
             cursor = self.conn.cursor()
-            # Drop old table to migrate schema
-            cursor.execute("DROP TABLE IF EXISTS products")
             cursor.execute("""
-                CREATE TABLE products (
+                CREATE TABLE IF NOT EXISTS products (
                     product_id TEXT PRIMARY KEY,
                     raw_data TEXT NOT NULL,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -73,6 +71,24 @@ class DatabaseManager:
         cursor = self.conn.cursor()
         cursor.execute("SELECT COUNT(1) FROM products")
         return cursor.fetchone()[0]
+
+    def delete_stale_products(self, fetched_product_ids):
+        """Remove local rows for products no longer present in the Printify store."""
+        if not fetched_product_ids:
+            logging.info("No products fetched; skipping stale row cleanup.")
+            return
+        try:
+            cursor = self.conn.cursor()
+            placeholders = ",".join("?" for _ in fetched_product_ids)
+            cursor.execute(
+                f"DELETE FROM products WHERE product_id NOT IN ({placeholders})",
+                list(fetched_product_ids)
+            )
+            self.conn.commit()
+            logging.info(f"Removed {cursor.rowcount} stale product(s) no longer present in Printify.")
+        except Exception as e:
+            logging.error(f"Failed to delete stale products: {e}")
+            raise e
 
     def close(self):
         if self.conn:
@@ -129,14 +145,26 @@ def run_synchronization():
     client = PrintifyClient(PRINTIFY_API_TOKEN)
 
     try:
-        # 1. Fetch All Shop Products
+        # 1. Fetch All Shop Products (Printify paginates this endpoint)
         products_url = f"https://api.printify.com/v1/shops/{PRINTIFY_SHOP_ID}/products.json"
         logging.info("Retrieving product catalog from Printify store...")
-        products_data = client.get(products_url)
-        products_list = products_data.get("data", [])
+        products_list = []
+        page = 1
+        last_page = 1
+        while page <= last_page:
+            page_data = client.get(f"{products_url}?page={page}")
+            page_items = page_data.get("data")
+            if not isinstance(page_items, list):
+                logging.error(f"Unexpected response shape on page {page}: missing list 'data' key. Aborting sync before any DB mutation.")
+                return
+            last_page = page_data.get("last_page", page)
+            logging.info(f"Fetched page {page}/{last_page} ({len(page_items)} products).")
+            products_list.extend(page_items)
+            page += 1
         logging.info(f"Retrieved {len(products_list)} active products from store.")
 
         # 2. Iterate and Synchronize each product
+        fetched_product_ids = set()
         for idx, p in enumerate(products_list):
             product_id = p.get("id")
             title = p.get("title", "")
@@ -144,6 +172,8 @@ def run_synchronization():
             if not product_id:
                 logging.warning(f"Skipping product index {idx} due to missing id.")
                 continue
+
+            fetched_product_ids.add(product_id)
 
             # Establish whether it is a Create or Update operation
             exists_locally = db.product_exists(product_id)
@@ -156,6 +186,9 @@ def run_synchronization():
                 raw_data=json.dumps(p)
             )
             logging.info(f"  Product sync completed successfully for: {product_id}")
+
+        # 3. Remove local rows for products no longer present in the store
+        db.delete_stale_products(fetched_product_ids)
 
         total_db_count = db.get_products_count()
         logging.info(f"Synchronization successfully finished! Total database records: {total_db_count}")

@@ -3,6 +3,8 @@ import io
 import json
 import sqlite3
 import base64
+import hmac
+import hashlib
 import logging
 from typing import Dict, Any
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Request, BackgroundTasks
@@ -11,11 +13,20 @@ from PIL import Image, ImageEnhance, ImageFilter, ImageOps
 import requests
 from dotenv import load_dotenv
 
-DATABASE_PATH = r"E:\Guinea_Pig_UI\ecommerce-service\products.db"
+DATABASE_PATH = os.getenv("DATABASE_PATH", os.path.join(os.path.dirname(os.path.abspath(__file__)), "products.db"))
 
 def get_db_connection():
     conn = sqlite3.connect(DATABASE_PATH)
     conn.row_factory = sqlite3.Row
+    # Ensure the schema exists so a fresh/empty DB file doesn't 500 with "no such table"
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS products (
+            product_id TEXT PRIMARY KEY,
+            raw_data TEXT NOT NULL,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.commit()
     return conn
 
 # Load env file
@@ -37,7 +48,7 @@ app = FastAPI(title="Guinea Pig Platform E-Commerce POD Service")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -77,7 +88,7 @@ def sync_product_from_printify(product_id: str):
         
     url = f"https://api.printify.com/v1/shops/{SHOP_ID}/products/{product_id}.json"
     try:
-        response = requests.get(url, headers=get_printify_headers())
+        response = requests.get(url, headers=get_printify_headers(), timeout=15)
         if response.ok:
             data = response.json()
             conn = get_db_connection()
@@ -103,10 +114,28 @@ def sync_product_from_printify(product_id: str):
     except Exception as e:
         logger.error(f"Failed to sync product {product_id} from Printify: {e}")
 
+_webhook_verification_warned = False
+
 @app.post("/api/webhooks/printify")
 async def printify_webhook(request: Request, background_tasks: BackgroundTasks):
+    raw_body = await request.body()
+
+    # Verify the webhook signature when a secret is configured
+    webhook_secret = os.getenv("PRINTIFY_WEBHOOK_SECRET")
+    if webhook_secret:
+        signature = request.headers.get("X-Pfy-Signature", "")
+        expected = hmac.new(webhook_secret.encode(), raw_body, hashlib.sha256).hexdigest()
+        if not hmac.compare_digest(expected, signature):
+            logger.warning("Printify webhook signature mismatch; rejecting request.")
+            raise HTTPException(status_code=401, detail="Invalid webhook signature.")
+    else:
+        global _webhook_verification_warned
+        if not _webhook_verification_warned:
+            logger.warning("PRINTIFY_WEBHOOK_SECRET not set; webhook signature verification is disabled (dev mode).")
+            _webhook_verification_warned = True
+
     try:
-        payload = await request.json()
+        payload = json.loads(raw_body)
         logger.info(f"Received Printify webhook: {payload.get('type')}")
         
         event_type = payload.get("type", "")
@@ -137,8 +166,11 @@ async def apply_ai_style(
     file: UploadFile = File(...),
     style: str = Form("original")
 ):
+    contents = await file.read()
+    if len(contents) > 10 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File size exceeds 10MB limit.")
+
     try:
-        contents = await file.read()
         img = Image.open(io.BytesIO(contents)).convert("RGB")
     except Exception as e:
         logger.error(f"Failed to load upload as image: {e}")
@@ -203,11 +235,13 @@ async def upload_image_to_printify(payload: Dict[str, Any]):
     }
 
     try:
-        response = requests.post(url, headers=get_printify_headers(), json=body)
+        response = requests.post(url, headers=get_printify_headers(), json=body, timeout=15)
         if not response.ok:
             logger.error(f"Printify image upload error ({response.status_code}): {response.text}")
             raise HTTPException(status_code=response.status_code, detail=f"Printify upload error: {response.text}")
         return response.json()
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Failed to upload image to Printify: {e}")
         raise HTTPException(status_code=500, detail=f"Upload error: {str(e)}")
@@ -269,14 +303,16 @@ async def get_blueprint_dimensions(blueprint_id: int, print_provider_id: int):
     blank_images = []
     brand = ""
     model = ""
+    bp_fetch_ok = False
     try:
         logger.info(f"Fetching blueprint {blueprint_id} catalog details for blank images...")
-        bp_response = requests.get(bp_url, headers=get_printify_headers())
+        bp_response = requests.get(bp_url, headers=get_printify_headers(), timeout=15)
         if bp_response.ok:
             bp_json = bp_response.json()
             blank_images = bp_json.get("images", [])
             brand = bp_json.get("brand", "")
             model = bp_json.get("model", "")
+            bp_fetch_ok = True
     except Exception as e:
         logger.error(f"Failed to fetch blueprint details: {e}")
 
@@ -284,7 +320,7 @@ async def get_blueprint_dimensions(blueprint_id: int, print_provider_id: int):
     url = f"https://api.printify.com/v1/catalog/blueprints/{blueprint_id}/print_providers/{print_provider_id}/variants.json"
     try:
         logger.info(f"Fetching dimensions for blueprint {blueprint_id} from Printify...")
-        response = requests.get(url, headers=get_printify_headers())
+        response = requests.get(url, headers=get_printify_headers(), timeout=15)
         if not response.ok:
             logger.error(f"Printify Catalog API error ({response.status_code}): {response.text}")
             raise HTTPException(status_code=response.status_code, detail=f"Printify Catalog error: {response.text}")
@@ -341,8 +377,13 @@ async def get_blueprint_dimensions(blueprint_id: int, print_provider_id: int):
             "calibration_source_image_index": source_img_idx,
             "variants": variants
         }
-        BLUEPRINT_DIMENSIONS_CACHE[cache_key] = result
+        # Only cache when the blueprint-images fetch succeeded; transient
+        # failures must not be pinned into the cache
+        if bp_fetch_ok:
+            BLUEPRINT_DIMENSIONS_CACHE[cache_key] = result
         return result
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Failed to fetch blueprint dimensions: {e}")
         # Safe fallback
@@ -355,6 +396,7 @@ async def get_blueprint_dimensions(blueprint_id: int, print_provider_id: int):
             "model": model,
             "placeholders": [{"position": "front", "width": 3185, "height": 3636}],
             "calibration": {"front": {"fx": 0.29, "fy": 0.20, "fw": 0.42, "rotation": 0, "aspect_ratio": 0.876}},
+            "calibration_source_image_index": -1,
             "variants": []
         }
 
@@ -374,15 +416,20 @@ async def submit_order_to_printify(payload: Dict[str, Any]):
     line_items = payload.get("line_items")
     if line_items:
         # Check and ensure types are correct
-        for item in line_items:
-            if "variant_id" in item:
-                item["variant_id"] = int(item["variant_id"])
-            if "blueprint_id" in item:
-                item["blueprint_id"] = int(item["blueprint_id"])
-            if "print_provider_id" in item:
-                item["print_provider_id"] = int(item["print_provider_id"])
-            if "quantity" in item:
-                item["quantity"] = int(item["quantity"])
+        try:
+            for item in line_items:
+                if "variant_id" in item:
+                    item["variant_id"] = int(item["variant_id"])
+                if "blueprint_id" in item:
+                    item["blueprint_id"] = int(item["blueprint_id"])
+                if "print_provider_id" in item:
+                    item["print_provider_id"] = int(item["print_provider_id"])
+                if "quantity" in item:
+                    item["quantity"] = int(item["quantity"])
+                    if item["quantity"] < 1:
+                        raise HTTPException(status_code=400, detail="quantity must be at least 1.")
+        except (ValueError, TypeError):
+            raise HTTPException(status_code=400, detail="variant_id, blueprint_id, print_provider_id and quantity must be integers.")
                 
         order_body = {
             "line_items": line_items,
@@ -400,13 +447,21 @@ async def submit_order_to_printify(payload: Dict[str, Any]):
                 status_code=400,
                 detail="Missing required fields: either 'line_items' or ('product_id', 'variant_id', 'printify_image_id') must be provided."
             )
-            
+
+        try:
+            variant_id = int(variant_id)
+            quantity = int(quantity)
+        except (ValueError, TypeError):
+            raise HTTPException(status_code=400, detail="variant_id, blueprint_id, print_provider_id and quantity must be integers.")
+        if quantity < 1:
+            raise HTTPException(status_code=400, detail="quantity must be at least 1.")
+
         order_body = {
             "line_items": [
                 {
                     "product_id": product_id,
-                    "variant_id": int(variant_id),
-                    "quantity": int(quantity),
+                    "variant_id": variant_id,
+                    "quantity": quantity,
                     "print_areas": {
                         "front": [ printify_image_id ]
                     }
@@ -417,12 +472,14 @@ async def submit_order_to_printify(payload: Dict[str, Any]):
 
     url = f"https://api.printify.com/v1/shops/{SHOP_ID}/orders.json"
     try:
-        logger.info(f"Submitting order to Printify: {order_body}")
-        response = requests.post(url, headers=get_printify_headers(), json=order_body)
+        logger.info(f"Submitting order to Printify: {len(order_body['line_items'])} line item(s), shipping to {shipping_to.get('country')}")
+        response = requests.post(url, headers=get_printify_headers(), json=order_body, timeout=15)
         if not response.ok:
             logger.error(f"Printify order error ({response.status_code}): {response.text}")
             raise HTTPException(status_code=response.status_code, detail=f"Printify order submission failed: {response.text}")
         return response.json()
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Failed to submit order: {e}")
         raise HTTPException(status_code=500, detail=f"Order error: {str(e)}")

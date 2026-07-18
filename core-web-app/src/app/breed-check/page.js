@@ -3,6 +3,7 @@
 import React, { useState, useRef } from "react";
 import Link from "next/link";
 import { supabase } from "@/utils/supabaseClient";
+import { apiFetch } from "@/utils/apiFetch";
 
 export default function BreedClassificationPage() {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -63,7 +64,7 @@ export default function BreedClassificationPage() {
     formData.append("file", selectedFile);
 
     try {
-      const response = await fetch("/api/breed-check", {
+      const response = await apiFetch("/api/breed-check", {
         method: "POST",
         body: formData,
       });

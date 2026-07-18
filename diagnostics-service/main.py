@@ -1,4 +1,5 @@
 import logging
+import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,11 +13,11 @@ logger = logging.getLogger("diagnostics-service")
 
 # Database configuration
 DB_CONFIG = {
-    "host": "localhost",
-    "database": "facebook_qa_db",
-    "user": "admin",
-    "password": "localpassword",
-    "port": "5432"
+    "host": os.getenv("DB_HOST", "localhost"),
+    "database": os.getenv("DB_NAME", "facebook_qa_db"),
+    "user": os.getenv("DB_USER", "admin"),
+    "password": os.getenv("DB_PASSWORD", "localpassword"),
+    "port": os.getenv("DB_PORT", "5432")
 }
 
 # Request schema
@@ -42,7 +43,7 @@ app = FastAPI(title="GuineaPigDoctor Diagnostics Service", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Next.js will call this through server-side fetch or direct local requests
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -152,6 +153,8 @@ async def search_problems(payload: SearchQuery):
         raise HTTPException(status_code=500, detail="Failed to vectorize the query.")
 
     # 2. Connect to database and run cosine similarity search on comments
+    conn = None
+    cursor = None
     try:
         db_url = os.getenv("DATABASE_URL")
         if db_url:
@@ -218,11 +221,14 @@ async def search_problems(payload: SearchQuery):
                     "advice": advice_info["advice"]
                 })
 
-        cursor.close()
-        conn.close()
     except Exception as e:
         logger.error(f"Database query or lookup failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Database search failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Database search failed.")
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
     # Return top 5 matches after filtering
     return {

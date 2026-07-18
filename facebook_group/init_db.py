@@ -1,3 +1,4 @@
+import sys
 import psycopg2
 
 try:
@@ -26,6 +27,22 @@ try:
             text_embedding vector(384)
         );
     """)
+
+    print("Creating facebook_comments table...")
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS facebook_comments (
+            id SERIAL PRIMARY KEY,
+            comment_id VARCHAR(255) UNIQUE,
+            parent_post_id VARCHAR(255),
+            author_name VARCHAR(255),
+            post_url TEXT NOT NULL,
+            content TEXT NOT NULL,
+            text_embedding vector(384)
+        );
+    """)
+
+    # Verify legacy_id column exists on posts table
+    cursor.execute("ALTER TABLE facebook_posts ADD COLUMN IF NOT EXISTS legacy_id VARCHAR(255);")
     
     # Commit changes and clean up
     conn.commit()
@@ -35,3 +52,4 @@ try:
 
 except Exception as e:
     print(f"An error occurred while setting up the database: {e}")
+    sys.exit(1)

@@ -3,7 +3,7 @@ conn = sqlite3.connect("products.db")
 cursor = conn.cursor()
 cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
 print("Tables:", cursor.fetchall())
-cursor.execute("SELECT product_id, title, updated_at FROM products")
+cursor.execute("SELECT product_id, json_extract(raw_data, '$.title'), updated_at FROM products")
 rows = cursor.fetchall()
 print(f"Products ({len(rows)}):")
 for r in rows:

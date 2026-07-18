@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { supabase } from "@/utils/supabaseClient";
+import { apiFetch } from "@/utils/apiFetch";
 
 export default function Home() {
   // Model state variables
@@ -66,7 +67,7 @@ export default function Home() {
     formData.append("box_scale", scale.toString());
 
     try {
-      const res = await fetch("/api/predict", {
+      const res = await apiFetch("/api/predict", {
         method: "POST",
         body: formData,
         signal: controller.signal,

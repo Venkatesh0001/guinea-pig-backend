@@ -1,4 +1,5 @@
 import os
+import glob
 import json
 import re
 import sys
@@ -10,8 +11,15 @@ from dotenv import load_dotenv
 script_dir = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(os.path.join(script_dir, ".env"))
 
-# Load dataset path
-JSON_FILE_PATH = r"E:\Guinea_Pig_UI\facebook_group\dataset_facebook-groups-scraper_2026-06-19_03-58-19-432 (1).json"
+# Load dataset path (env-overridable, defaults to the dataset file next to this script)
+JSON_FILE_PATH = os.getenv("DATASET_PATH")
+if not JSON_FILE_PATH:
+    matches = glob.glob(os.path.join(script_dir, "dataset_facebook-groups-scraper_*.json"))
+    if not matches:
+        print("CRITICAL ERROR: No dataset file matching 'dataset_facebook-groups-scraper_*.json' found next to the script.", file=sys.stderr)
+        print("Please set the 'DATASET_PATH' environment variable to point to your dataset JSON file.", file=sys.stderr)
+        sys.exit(1)
+    JSON_FILE_PATH = matches[0]
 
 def extract_legacy_id(url):
     if not url:
@@ -129,17 +137,17 @@ def seed_database():
 
     print("Generating embeddings and seeding comments to database...")
     for idx, comment in enumerate(comments):
-        text = comment.get("text", "").strip()
+        text = (comment.get("text") or "").strip()
         if not text:
             skipped_count += 1
             continue
 
-        comment_id = comment.get("commentId") or comment.get("id")
-        parent_post_id = comment.get("legacyId")
-        author_name = comment.get("user", {}).get("name", "Anonymous")
-        post_url = comment.get("url") or comment.get("facebookUrl", "https://www.facebook.com/groups/484638885565090")
-
         try:
+            comment_id = comment.get("commentId") or comment.get("id")
+            parent_post_id = comment.get("legacyId")
+            author_name = (comment.get("user") or {}).get("name", "Anonymous")
+            post_url = comment.get("commentUrl") or comment.get("url") or comment.get("facebookUrl", "https://www.facebook.com/groups/484638885565090")
+
             # Generate 384-dimensional vector embedding
             embedding = model.encode(text).tolist()
             
@@ -150,7 +158,10 @@ def seed_database():
                 ON CONFLICT (comment_id) DO NOTHING;
             """, (comment_id, parent_post_id, author_name, post_url, text, embedding))
             
-            inserted_count += 1
+            if cursor.rowcount > 0:
+                inserted_count += 1
+            # Commit per row so a later row failure cannot discard earlier inserts
+            conn.commit()
         except psycopg2.Error as db_err:
             # Print strict database execution errors (e.g. constraints, type mismatch, dimensions)
             print(f"\n[ROW ERROR] Failed to insert comment {idx} (ID: {comment_id}):", file=sys.stderr)
