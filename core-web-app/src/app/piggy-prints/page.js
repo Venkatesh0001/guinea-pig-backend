@@ -5,7 +5,7 @@ import Link from "next/link";
 import { supabase } from "@/utils/supabaseClient";
 import { apiFetch } from "@/utils/apiFetch";
 
-export default function RecommendedProducts() {
+export default function PiggyPrints() {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -391,7 +391,7 @@ export default function RecommendedProducts() {
             <div className="space-y-1">
               {/* Flipkart style breadcrumbs */}
               <div className="text-[10px] font-bold text-slate-500 tracking-wider">
-                Home &gt; recommended products &gt; cavy shop
+                Home &gt; piggy prints &gt; cavy shop
               </div>
               <h2 className="text-xl font-bold text-white flex items-center gap-2">
                 Cavy Tees, Shirts & Accessories

@@ -209,8 +209,8 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* Card 6: Recommended Products */}
-          <Link href="/recommended-products" className="group block" onClick={handleTileClick}>
+          {/* Card 6: Piggy Prints */}
+          <Link href="/piggy-prints" className="group block" onClick={handleTileClick}>
             <div className="relative h-full bg-slate-900/30 backdrop-blur-xl border border-white/10 hover:border-indigo-500/50 rounded-3xl p-8 opacity-75 group-hover:opacity-100 transition-all duration-300 ease-out transform group-hover:-translate-y-2 group-hover:shadow-[0_20px_40px_-15px_rgba(99,102,241,0.4)] overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 rounded-full blur-3xl -mr-10 -mt-10 transition-all group-hover:bg-indigo-500/40" />
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-6 shadow-lg shadow-indigo-500/30 animate-pulse">
@@ -219,7 +219,7 @@ export default function LandingPage() {
                 </svg>
               </div>
               <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-indigo-300 transition-colors">
-                Recommended Products
+                Piggy Prints
               </h3>
               <p className="text-slate-400 text-sm leading-relaxed mb-6">
                 Discover the best mugs, apparel, and custom printed products for your little guinea pig friend.
