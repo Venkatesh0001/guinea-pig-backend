@@ -39,19 +39,40 @@ export default function AdminRecommendedProducts() {
     try {
       setLoading(true);
       // Fetch merchants
-      const { data: merchantData, error: merchantErr } = await supabase
+      let { data: merchantData, error: merchantErr } = await supabase
         .from("merchants")
         .select("*")
         .order("name", { ascending: true });
 
       if (merchantErr) throw merchantErr;
-      setMerchants(merchantData);
 
-      // Seed default merchants if empty
-      if (merchantData.length === 0) {
-        await seedDefaultMerchants();
-        return;
+      // Ensure required default merchants exist
+      const requiredMerchants = [
+        { name: "Amazon", logo_url: "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" },
+        { name: "Chewy", logo_url: "https://upload.wikimedia.org/wikipedia/commons/e/ec/Chewy_logo.svg" },
+        { name: "Others", logo_url: "" }
+      ];
+
+      const existingNames = merchantData ? merchantData.map(m => m.name) : [];
+      const missingMerchants = requiredMerchants.filter(rm => !existingNames.includes(rm.name));
+
+      if (missingMerchants.length > 0) {
+        const { error: seedErr } = await supabase.from("merchants").insert(missingMerchants);
+        if (seedErr) {
+          console.error("Failed to seed missing merchants:", seedErr);
+        } else {
+          // Re-fetch merchants after seeding
+          const { data: updatedMerchants, error: refetchErr } = await supabase
+            .from("merchants")
+            .select("*")
+            .order("name", { ascending: true });
+          if (!refetchErr && updatedMerchants) {
+            merchantData = updatedMerchants;
+          }
+        }
       }
+
+      setMerchants(merchantData || []);
 
       // Fetch products with their offers
       const { data: productData, error: productErr } = await supabase
@@ -69,33 +90,12 @@ export default function AdminRecommendedProducts() {
         .order("created_at", { ascending: false });
 
       if (productErr) throw productErr;
-      setProducts(productData);
+      setProducts(productData || []);
     } catch (err) {
       console.error("Error fetching data:", err);
       setMessage({ type: "error", text: err.message || "Failed to fetch data." });
     } finally {
       setLoading(false);
-    }
-  };
-
-  const seedDefaultMerchants = async () => {
-    try {
-      setActionLoading(true);
-      const defaultMerchants = [
-        { name: "Amazon", logo_url: "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" },
-        { name: "Chewy", logo_url: "https://upload.wikimedia.org/wikipedia/commons/e/ec/Chewy_logo.svg" }
-      ];
-      const { error } = await supabase.from("merchants").insert(defaultMerchants);
-      if (error) throw error;
-      
-      // Refetch data
-      const { data: merchantData } = await supabase.from("merchants").select("*").order("name", { ascending: true });
-      setMerchants(merchantData || []);
-    } catch (err) {
-      console.error("Error seeding merchants:", err);
-      setMessage({ type: "error", text: "Failed to seed default merchants (Amazon/Chewy). Make sure you have admin privileges." });
-    } finally {
-      setActionLoading(false);
     }
   };
 
