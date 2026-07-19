@@ -2,21 +2,36 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/utils/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import AuthPage from "@/components/AuthPage";
 
 export default function LandingPage() {
+  const router = useRouter();
   const { session } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [redirectPath, setRedirectPath] = useState(null);
+  const isAdmin = session?.user?.app_metadata?.role === "admin";
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("login") === "true") {
       setAuthModalOpen(true);
+      const redir = params.get("redirect");
+      if (redir) {
+        setRedirectPath(redir);
+      }
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
+
+  // Handle redirect after login if redirectPath exists
+  useEffect(() => {
+    if (session && redirectPath) {
+      router.push(redirectPath);
+    }
+  }, [session, redirectPath, router]);
 
   const handleTileClick = (e) => {
     if (!session) {
@@ -57,7 +72,7 @@ export default function LandingPage() {
           <div className="flex items-center space-x-6">
             <div className="hidden md:flex space-x-8 text-sm font-semibold text-slate-300">
               <a href="#" className="hover:text-white transition-colors">Platform</a>
-              <a href="#" className="hover:text-white transition-colors">Solutions</a>
+              <Link href="/recommended-products" className="hover:text-white transition-colors">Recommended Products</Link>
               <a href="#" className="hover:text-white transition-colors">Documentation</a>
             </div>
             {!session ? (
@@ -69,6 +84,14 @@ export default function LandingPage() {
               </button>
             ) : (
               <div className="flex items-center space-x-4">
+                {isAdmin && (
+                  <Link
+                    href="/admin/recommended-products"
+                    className="py-2 px-3.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-bold transition-all shadow-md shadow-indigo-500/20"
+                  >
+                    Admin Console
+                  </Link>
+                )}
                 <span className="hidden sm:inline text-xs font-bold text-slate-400">
                   {session.user?.email}
                 </span>
@@ -77,7 +100,7 @@ export default function LandingPage() {
                   className="py-2 px-3.5 rounded-xl bg-white/5 border border-white/10 hover:bg-rose-500/10 hover:border-rose-500/30 text-slate-300 hover:text-rose-455 text-xs font-bold transition-all duration-200 cursor-pointer flex items-center space-x-1.5 shadow-sm"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013 3v1" />
                   </svg>
                   <span>Log Out</span>
                 </button>

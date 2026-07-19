@@ -16,8 +16,8 @@ export default function AuthGuard({ children }) {
 
   useEffect(() => {
     if (!loading && !session && !isPublicRoute) {
-      // Redirect unauthenticated user to home page to prompt login
-      router.push("/?login=true");
+      // Redirect unauthenticated user to home page to prompt login, remembering original path
+      router.push(`/?login=true&redirect=${encodeURIComponent(pathname)}`);
     }
   }, [session, loading, pathname, router, isPublicRoute]);
 
