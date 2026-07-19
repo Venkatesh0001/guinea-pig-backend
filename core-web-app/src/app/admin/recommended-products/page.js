@@ -59,16 +59,17 @@ export default function AdminRecommendedProducts() {
       if (missingMerchants.length > 0) {
         const { error: seedErr } = await supabase.from("merchants").insert(missingMerchants);
         if (seedErr) {
-          console.error("Failed to seed missing merchants:", seedErr);
-        } else {
-          // Re-fetch merchants after seeding
-          const { data: updatedMerchants, error: refetchErr } = await supabase
-            .from("merchants")
-            .select("*")
-            .order("name", { ascending: true });
-          if (!refetchErr && updatedMerchants) {
-            merchantData = updatedMerchants;
-          }
+          throw new Error(`Failed to seed missing merchants: ${seedErr.message}`);
+        }
+        
+        // Re-fetch merchants after seeding
+        const { data: updatedMerchants, error: refetchErr } = await supabase
+          .from("merchants")
+          .select("*")
+          .order("name", { ascending: true });
+        if (refetchErr) throw refetchErr;
+        if (updatedMerchants) {
+          merchantData = updatedMerchants;
         }
       }
 
