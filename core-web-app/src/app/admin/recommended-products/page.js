@@ -475,17 +475,26 @@ export default function AdminRecommendedProducts() {
 
             {/* Notifications */}
             {message.text && (
-              <div className={`p-4 mb-6 rounded-2xl text-xs font-semibold border flex items-center space-x-2 ${
-                message.type === "error" 
-                  ? "bg-rose-500/10 border-rose-500/20 text-rose-400" 
-                  : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-              }`}>
-                {message.type === "error" ? (
-                  <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                ) : (
-                  <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <div className="space-y-2 mb-6">
+                <div className={`p-4 rounded-2xl text-xs font-semibold border flex items-center space-x-2 ${
+                  message.type === "error" 
+                    ? "bg-rose-500/10 border-rose-500/20 text-rose-400" 
+                    : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                }`}>
+                  {message.type === "error" ? (
+                    <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  ) : (
+                    <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  )}
+                  <span>{message.text}</span>
+                </div>
+                {message.type === "error" && (
+                  <div className="p-4 rounded-2xl bg-slate-900/80 border border-white/5 text-[10px] font-mono text-slate-400 space-y-1">
+                    <p className="font-bold text-slate-300">Session Debug Info:</p>
+                    <p>User Email: {session?.user?.email || "none"}</p>
+                    <p>Client App Metadata: {JSON.stringify(session?.user?.app_metadata || {})}</p>
+                  </div>
                 )}
-                <span>{message.text}</span>
               </div>
             )}
 
