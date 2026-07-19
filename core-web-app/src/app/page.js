@@ -26,12 +26,16 @@ export default function LandingPage() {
     }
   }, []);
 
-  // Handle redirect after login if redirectPath exists
+  // Handle redirect after login if redirectPath exists, or if the user is an admin
   useEffect(() => {
-    if (session && redirectPath) {
-      router.push(redirectPath);
+    if (session) {
+      if (redirectPath) {
+        router.push(redirectPath);
+      } else if (isAdmin) {
+        router.push("/admin/recommended-products");
+      }
     }
-  }, [session, redirectPath, router]);
+  }, [session, redirectPath, router, isAdmin]);
 
   const handleTileClick = (e) => {
     if (!session) {
