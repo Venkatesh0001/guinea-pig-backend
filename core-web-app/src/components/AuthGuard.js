@@ -9,12 +9,17 @@ export default function AuthGuard({ children }) {
   const pathname = usePathname();
   const router = useRouter();
 
+  const isPublicRoute = 
+    pathname === "/" || 
+    pathname === "/recommended-products" || 
+    pathname?.startsWith("/api/out");
+
   useEffect(() => {
-    if (!loading && !session && pathname !== "/") {
+    if (!loading && !session && !isPublicRoute) {
       // Redirect unauthenticated user to home page to prompt login
       router.push("/?login=true");
     }
-  }, [session, loading, pathname, router]);
+  }, [session, loading, pathname, router, isPublicRoute]);
 
   if (loading) {
     return (
@@ -53,7 +58,7 @@ export default function AuthGuard({ children }) {
   }
 
   // Prevent flash content rendering while executing redirect
-  if (!session && pathname !== "/") {
+  if (!session && !isPublicRoute) {
     return null;
   }
 

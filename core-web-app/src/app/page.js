@@ -191,23 +191,29 @@ export default function LandingPage() {
             </div>
           </Link>
 
-          {/* Card 5: Know your Crvy */}
-          <div className="relative h-full bg-slate-900/35 backdrop-blur-md border border-white/5 rounded-3xl p-8 overflow-hidden opacity-[0.72]">
-            <div className="absolute top-4 right-4 px-3 py-1 bg-slate-800/80 rounded-full text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-              Coming Soon
+          {/* Card 5: Recommended Products (Active Route) */}
+          <Link href="/recommended-products" className="group block">
+            <div className="relative h-full bg-slate-900/30 backdrop-blur-xl border border-white/10 hover:border-indigo-500/50 rounded-3xl p-8 opacity-75 group-hover:opacity-100 transition-all duration-300 ease-out transform group-hover:-translate-y-2 group-hover:shadow-[0_20px_40px_-15px_rgba(99,102,241,0.4)] overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 rounded-full blur-3xl -mr-10 -mt-10 transition-all group-hover:bg-indigo-500/40" />
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-6 shadow-lg shadow-indigo-500/30 animate-pulse">
+                <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-indigo-300 transition-colors">
+                Recommended Products
+              </h3>
+              <p className="text-slate-400 text-sm leading-relaxed mb-6">
+                Explore vet-approved diets, cages, toys, and healthcare supplies handpicked for your guinea pigs.
+              </p>
+              <div className="flex items-center text-indigo-400 font-semibold text-sm group-hover:text-indigo-300">
+                Browse Products
+                <svg className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </div>
             </div>
-            <div className="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center mb-6 border border-slate-700">
-              <svg className="w-7 h-7 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
-            </div>
-            <h3 className="text-2xl font-bold text-slate-300 mb-3">
-              Know your Crvy
-            </h3>
-            <p className="text-slate-500 text-sm leading-relaxed mb-6">
-              Learn about guinea pig care, diet, behavior, and best practices.
-            </p>
-          </div>
+          </Link>
 
           {/* Card 6: Piggy Prints */}
           <Link href="/piggy-prints" className="group block" onClick={handleTileClick}>

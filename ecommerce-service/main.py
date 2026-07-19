@@ -11,6 +11,7 @@ from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image, ImageEnhance, ImageFilter, ImageOps
 import requests
+from fastapi.responses import RedirectResponse
 from dotenv import load_dotenv
 
 # Load env file
@@ -437,6 +438,50 @@ async def submit_order_to_printify(payload: Dict[str, Any]):
     except Exception as e:
         logger.error(f"Failed to submit order: {e}")
         raise HTTPException(status_code=500, detail=f"Order error: {str(e)}")
+
+# ----------------------------------------------------
+# 5. Affiliate Redirect & Click Tracking Router
+# ----------------------------------------------------
+@app.get("/api/out")
+async def redirect_offer(offerId: str):
+    if not offerId:
+        raise HTTPException(status_code=400, detail="Missing offerId parameter")
+
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # 1. Query Supabase for the specific offer ID
+        cursor.execute("SELECT affiliate_url FROM product_offers WHERE id = %s", (offerId,))
+        row = cursor.fetchone()
+
+        if not row:
+            raise HTTPException(status_code=404, detail="Offer not found")
+
+        affiliate_url = row[0]
+
+        # 2. Increment the click counter
+        cursor.execute("UPDATE product_offers SET clicks = clicks + 1 WHERE id = %s", (offerId,))
+        conn.commit()
+
+        # 3. Return 302 Temporary Redirect
+        return RedirectResponse(url=affiliate_url, status_code=302)
+
+    except psycopg2.Error as db_err:
+        logger.error(f"Database error during redirect: {db_err}")
+        raise HTTPException(status_code=500, detail="Database lookup failed")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during redirect: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 if __name__ == "__main__":
     import uvicorn
