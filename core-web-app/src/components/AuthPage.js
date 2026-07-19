@@ -66,6 +66,15 @@ export default function AuthPage({ isOpen, onClose }) {
     }
   };
 
+  const getRedirectUrl = () => {
+    const params = new URLSearchParams(window.location.search);
+    const redirectParam = params.get("redirect");
+    if (redirectParam) {
+      return `${window.location.origin}${redirectParam}`;
+    }
+    return window.location.origin;
+  };
+
   const handleGoogleLogin = async () => {
     setLoading(true);
     setMessage({ type: "", text: "" });
@@ -73,7 +82,7 @@ export default function AuthPage({ isOpen, onClose }) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: window.location.origin,
+          redirectTo: getRedirectUrl(),
         },
       });
       if (error) throw error;
@@ -90,7 +99,7 @@ export default function AuthPage({ isOpen, onClose }) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "facebook",
         options: {
-          redirectTo: window.location.origin,
+          redirectTo: getRedirectUrl(),
         },
       });
       if (error) throw error;
