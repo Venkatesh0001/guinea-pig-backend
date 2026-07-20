@@ -781,7 +781,15 @@ export default function AdminRecommendedProducts() {
                               </div>
                             )}
                             <div>
-                              <p className="font-bold text-white leading-tight">{product.name}</p>
+                              <Link
+                                href={`/recommended-products/${product.id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-bold text-white hover:text-indigo-400 hover:underline leading-tight transition-colors"
+                                title="View Public Product Detail Page"
+                              >
+                                {product.name}
+                              </Link>
                               <div className="flex items-center space-x-1.5 mt-1">
                                 <span className="inline-block text-[9px] bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-extrabold tracking-wide uppercase px-1.5 py-0.5 rounded">
                                   {product.category}
