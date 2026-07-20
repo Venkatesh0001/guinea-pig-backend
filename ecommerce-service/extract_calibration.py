@@ -100,6 +100,26 @@ def detect_orange_dots(img):
     }
 
 
+def get_fallback_calibration(front_placeholder):
+    """Return a conservative centered calibration when no orange markers are found."""
+    width = front_placeholder.get("width", 3185)
+    height = front_placeholder.get("height", 3636)
+    aspect = width / height if height else 0.875
+    # Keep the box centered and sized so it fits most product mockups without
+    # extending past the edges. Width is chosen conservatively; height is
+    # derived from the placeholder aspect ratio.
+    fw = 0.40
+    fh = fw / aspect
+    return {
+        "fx": round(0.5 - fw / 2, 4),
+        "fy": round(0.5 - fh / 2, 4),
+        "fw": round(fw, 4),
+        "fh": round(fh, 4),
+        "rotation": 0,
+        "fallback": True,
+    }
+
+
 def analyze_product(blueprint_id, print_provider_id, product_title):
     """Fetch blank mockup images for a product and detect the orange print area."""
     print(f"\n{'='*70}")
@@ -117,6 +137,14 @@ def analyze_product(blueprint_id, print_provider_id, product_title):
 
     blank_images = data.get("blank_images", [])
     print(f"  Found {len(blank_images)} blank mockup images")
+
+    # Find the front placeholder so we can fall back to a centered box if the
+    # mockup does not contain the orange 'YOUR DESIGN' markers.
+    placeholders = data.get("placeholders", [])
+    front_placeholder = next(
+        (p for p in placeholders if p.get("position") == "front"),
+        placeholders[0] if placeholders else {"width": 3185, "height": 3636}
+    )
 
     results = []
 
@@ -155,6 +183,13 @@ def analyze_product(blueprint_id, print_provider_id, product_title):
             results.append({"image_index": idx, "image_url": img_url, "detection": detection})
         else:
             print(f"    -- No orange markers")
+
+    # If no orange markers were found on any image, use a conservative centered
+    # fallback so the user still has a starting calibration to refine.
+    if not results:
+        fallback = get_fallback_calibration(front_placeholder)
+        print(f"\n  [FALLBACK] Using centered calibration: {fallback}")
+        results.append({"image_index": -1, "image_url": None, "detection": fallback})
 
     return results
 

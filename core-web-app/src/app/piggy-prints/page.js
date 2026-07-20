@@ -197,7 +197,8 @@ export default function PiggyPrints() {
     if (product.blueprint_id && product.print_provider_id) {
       try {
         setLoadingBlueprint(true);
-        const res = await apiFetch(`/api/ecommerce/blueprint-dimensions/${product.blueprint_id}/${product.print_provider_id}`);
+        const titleParam = product.title ? `?title=${encodeURIComponent(product.title)}` : "";
+        const res = await apiFetch(`/api/ecommerce/blueprint-dimensions/${product.blueprint_id}/${product.print_provider_id}${titleParam}`);
         if (res.ok) {
           const data = await res.json();
           setBlueprintData(data);
@@ -824,45 +825,48 @@ export default function PiggyPrints() {
                 <div className="my-4 flex-grow flex flex-col items-center justify-center min-h-[300px] relative bg-slate-950 rounded-2xl p-4 border border-white/5 shadow-inner">
                   {isCustomizing && uploadedImageBase64 ? (
                     <div className="relative w-full h-[260px] flex items-center justify-center">
-                      {/* Blank Mockup Background */}
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={mockupUrl}
-                        alt="Blank Mockup"
-                        className="max-h-[240px] object-contain select-none pointer-events-none"
-                      />
-
-                      {/* Calibrated Print Area Template Bounding Box */}
-                      <div
-                        ref={printBoxRef}
-                        style={{
-                          position: "absolute",
-                          left: `${cal.fx * 100}%`,
-                          top: `${cal.fy * 100}%`,
-                          width: `${cal.fw * 100}%`,
-                          height: `${fh * 100}%`,
-                          border: "2px dashed rgba(99, 102, 241, 0.65)",
-                          borderRadius: "4px",
-                          boxSizing: "border-box",
-                          overflow: "hidden"
-                        }}
-                      >
-                        {/* Draggable user design image */}
+                      {/* Wrapper matches the displayed mockup image so the print box is calibrated against the image, not the container */}
+                      <div className="relative inline-block max-w-full max-h-[240px]">
+                        {/* Blank Mockup Background */}
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                          src={uploadedImageBase64}
-                          alt="Custom upload preview"
-                          onMouseDown={handleMouseDown}
+                          src={mockupUrl}
+                          alt="Blank Mockup"
+                          className="block max-w-full max-h-[240px] object-contain select-none pointer-events-none"
+                        />
+
+                        {/* Calibrated Print Area Template Bounding Box */}
+                        <div
+                          ref={printBoxRef}
                           style={{
                             position: "absolute",
-                            left: `${(userX * 100) - (userScale * 100 / 2)}%`,
-                            top: `${(userY * 100) - (userScale * (100 / imageAspectRatio) * cal.aspect_ratio / 2)}%`,
-                            width: `${userScale * 100}%`,
-                            height: "auto",
-                            cursor: "move",
-                            userSelect: "none"
+                            left: `${cal.fx * 100}%`,
+                            top: `${cal.fy * 100}%`,
+                            width: `${cal.fw * 100}%`,
+                            height: `${fh * 100}%`,
+                            border: "2px dashed rgba(99, 102, 241, 0.65)",
+                            borderRadius: "4px",
+                            boxSizing: "border-box",
+                            overflow: "hidden"
                           }}
-                        />
+                        >
+                          {/* Draggable user design image */}
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={uploadedImageBase64}
+                            alt="Custom upload preview"
+                            onMouseDown={handleMouseDown}
+                            style={{
+                              position: "absolute",
+                              left: `${(userX * 100) - (userScale * 100 / 2)}%`,
+                              top: `${(userY * 100) - (userScale * (100 / imageAspectRatio) * cal.aspect_ratio / 2)}%`,
+                              width: `${userScale * 100}%`,
+                              height: "auto",
+                              cursor: "move",
+                              userSelect: "none"
+                            }}
+                          />
+                        </div>
                       </div>
 
                       {/* Floating DPI resolution badge */}

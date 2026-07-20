@@ -205,6 +205,12 @@ async def upload_image_to_printify(payload: Dict[str, Any]):
 # 3.1 Spatial Calibration Matrix
 # ----------------------------------------------------
 # Maps blueprint_id -> position -> mockup calibration variables.
+# IMPORTANT: Printify's product/personalization APIs expose placeholder sizes
+# (width/height) but NOT where that print area sits on the mockup image. The
+# position on the mockup must be derived by analyzing the blueprint's blank
+# mockup images (e.g. the orange "YOUR DESIGN" grid) or supplied explicitly
+# in this matrix. Enabling personalization in Printify does not add print-area
+# geometry to the API response, so it cannot be used alone for positioning.
 # Each entry defines the fractional bounding box coordinates relative
 # to the blank mockup image dimensions:
 #   fx: Fractional X offset (left edge of box as % of image width)
@@ -237,18 +243,39 @@ SPATIAL_CALIBRATION_MATRIX = {
     },
 }
 
-# Default calibration for unknown blueprints (centered, 42% width)
-DEFAULT_CALIBRATION = {"fx": 0.29, "fy": 0.20, "fw": 0.42, "rotation": 0}
+# Default calibration for unknown blueprints (centered, conservative)
+DEFAULT_CALIBRATION = {"fx": 0.30, "fy": 0.28, "fw": 0.40, "rotation": 0}
+
+# Product-type heuristics for common items without an explicit matrix entry.
+# Values are conservative so the bounding box stays inside the product.
+PRODUCT_TYPE_HEURISTICS = {
+    "bib":       {"fx": 0.25, "fy": 0.22, "fw": 0.50, "rotation": 0},
+    "bandana":   {"fx": 0.22, "fy": 0.18, "fw": 0.56, "rotation": 0},
+    "mug":       {"fx": 0.25, "fy": 0.25, "fw": 0.50, "rotation": 0},
+    "onesie":    {"fx": 0.25, "fy": 0.22, "fw": 0.50, "rotation": 0},
+    "baby":      {"fx": 0.25, "fy": 0.22, "fw": 0.50, "rotation": 0},
+    "beanie":    {"fx": 0.25, "fy": 0.25, "fw": 0.50, "rotation": 0},
+    "hat":       {"fx": 0.25, "fy": 0.25, "fw": 0.50, "rotation": 0},
+    "tote":      {"fx": 0.22, "fy": 0.22, "fw": 0.56, "rotation": 0},
+}
+
+def get_heuristic_calibration(title: str = "", brand: str = "", model: str = ""):
+    """Return a heuristic calibration for products that don't have a matrix entry."""
+    text = f"{title} {brand} {model}".lower()
+    for keyword, cal in PRODUCT_TYPE_HEURISTICS.items():
+        if keyword in text:
+            return cal
+    return DEFAULT_CALIBRATION
 
 # Cache blueprint dimensions to avoid rate limiting
 BLUEPRINT_DIMENSIONS_CACHE = {}
 
 @app.get("/api/ecommerce/blueprint-dimensions/{blueprint_id}/{print_provider_id}")
-async def get_blueprint_dimensions(blueprint_id: int, print_provider_id: int):
+async def get_blueprint_dimensions(blueprint_id: int, print_provider_id: int, title: str = ""):
     if not API_TOKEN:
         raise HTTPException(status_code=500, detail="Printify API token is not configured.")
 
-    cache_key = f"{blueprint_id}_{print_provider_id}"
+    cache_key = f"{blueprint_id}_{print_provider_id}_{title}"
     if cache_key in BLUEPRINT_DIMENSIONS_CACHE:
         logger.info(f"Returning cached dimensions for blueprint {blueprint_id}")
         return BLUEPRINT_DIMENSIONS_CACHE[cache_key]
@@ -303,10 +330,11 @@ async def get_blueprint_dimensions(blueprint_id: int, print_provider_id: int):
             
         # Build calibration data for the frontend
         blueprint_calibration = SPATIAL_CALIBRATION_MATRIX.get(blueprint_id, {})
+        fallback_cal = get_heuristic_calibration(title, brand, model)
         calibration = {}
         for ph in formatted_placeholders:
             pos = ph["position"]
-            cal = blueprint_calibration.get(pos, DEFAULT_CALIBRATION)
+            cal = blueprint_calibration.get(pos, fallback_cal)
             calibration[pos] = {
                 "fx": cal["fx"],
                 "fy": cal["fy"],
@@ -342,6 +370,7 @@ async def get_blueprint_dimensions(blueprint_id: int, print_provider_id: int):
     except Exception as e:
         logger.error(f"Failed to fetch blueprint dimensions: {e}")
         # Safe fallback
+        fallback_cal = get_heuristic_calibration(title, brand, model)
         return {
             "width": 3185, 
             "height": 3636, 
@@ -350,7 +379,7 @@ async def get_blueprint_dimensions(blueprint_id: int, print_provider_id: int):
             "brand": brand,
             "model": model,
             "placeholders": [{"position": "front", "width": 3185, "height": 3636}],
-            "calibration": {"front": {"fx": 0.29, "fy": 0.20, "fw": 0.42, "rotation": 0, "aspect_ratio": 0.876}},
+            "calibration": {"front": {**fallback_cal, "aspect_ratio": 0.876}},
             "calibration_source_image_index": -1,
             "variants": []
         }
