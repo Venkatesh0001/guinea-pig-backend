@@ -555,14 +555,26 @@ export default function AdminRecommendedProducts() {
               </div>
 
               <div className="space-y-1">
-                <label className="block text-[9px] uppercase tracking-wider text-slate-400 font-bold ml-1">Primary Image URL</label>
+                <div className="flex justify-between items-center">
+                  <label className="block text-[9px] uppercase tracking-wider text-slate-400 font-bold ml-1">Primary Image URL</label>
+                  {primaryImageUrl && !/\.(jpg|jpeg|png|webp|gif|svg)/i.test(primaryImageUrl) && (
+                    <span className="text-[9px] font-bold text-amber-400 animate-pulse">⚠️ Might be webpage link, not image</span>
+                  )}
+                </div>
                 <input
                   type="url"
-                  placeholder="https://example.com/images/product.jpg"
+                  placeholder="e.g., https://images-na.ssl-images-amazon.com/... .jpg"
                   value={primaryImageUrl}
                   onChange={(e) => setPrimaryImageUrl(e.target.value)}
-                  className="w-full bg-slate-950/80 text-slate-100 border border-white/10 rounded-2xl px-4 py-3 focus:outline-none focus:border-indigo-500/50 font-semibold text-xs transition-all shadow-inner"
+                  className={`w-full bg-slate-950/80 text-slate-100 border rounded-2xl px-4 py-3 focus:outline-none font-semibold text-xs transition-all shadow-inner ${
+                    primaryImageUrl && !/\.(jpg|jpeg|png|webp|gif|svg)/i.test(primaryImageUrl)
+                      ? "border-amber-500/50 focus:border-amber-500"
+                      : "border-white/10 focus:border-indigo-500/50"
+                  }`}
                 />
+                <p className="text-[9px] text-slate-500 font-medium ml-1">
+                  Right-click the product image on Amazon/Chewy and select <strong>"Copy Image Address"</strong>, then paste it here (not the browser webpage link).
+                </p>
               </div>
 
               {/* Product Offers Section */}
