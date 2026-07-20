@@ -18,6 +18,7 @@ export default function AdminRecommendedProducts() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [primaryImageUrl, setPrimaryImageUrl] = useState("");
+  const [additionalImageUrls, setAdditionalImageUrls] = useState([]);
   const [category, setCategory] = useState("Food & Treats");
   const [isActive, setIsActive] = useState(true);
   const [offers, setOffers] = useState([{ merchantId: "", manualPrice: "", affiliateUrl: "" }]);
@@ -151,6 +152,7 @@ export default function AdminRecommendedProducts() {
             name,
             description,
             primary_image_url: primaryImageUrl,
+            additional_image_urls: additionalImageUrls.filter(url => url.trim() !== ""),
             category,
             is_active: isActive
           })
@@ -188,6 +190,7 @@ export default function AdminRecommendedProducts() {
             name,
             description,
             primary_image_url: primaryImageUrl,
+            additional_image_urls: additionalImageUrls.filter(url => url.trim() !== ""),
             category,
             is_active: isActive
           })
@@ -229,6 +232,7 @@ export default function AdminRecommendedProducts() {
     setName(product.name);
     setDescription(product.description || "");
     setPrimaryImageUrl(product.primary_image_url || "");
+    setAdditionalImageUrls(product.additional_image_urls || []);
     setCategory(product.category || "Food & Treats");
     setIsActive(product.is_active);
 
@@ -251,6 +255,7 @@ export default function AdminRecommendedProducts() {
     setName("");
     setDescription("");
     setPrimaryImageUrl("");
+    setAdditionalImageUrls([]);
     setCategory("Food & Treats");
     setIsActive(true);
     setOffers([{ merchantId: "", manualPrice: "", affiliateUrl: "" }]);
@@ -554,27 +559,82 @@ export default function AdminRecommendedProducts() {
                 />
               </div>
 
-              <div className="space-y-1">
-                <div className="flex justify-between items-center">
-                  <label className="block text-[9px] uppercase tracking-wider text-slate-400 font-bold ml-1">Primary Image URL</label>
-                  {primaryImageUrl && !/\.(jpg|jpeg|png|webp|gif|svg)/i.test(primaryImageUrl) && (
-                    <span className="text-[9px] font-bold text-amber-400 animate-pulse">⚠️ Might be webpage link, not image</span>
-                  )}
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <label className="block text-[9px] uppercase tracking-wider text-slate-400 font-bold ml-1">Primary Image URL</label>
+                    {primaryImageUrl && !/\.(jpg|jpeg|png|webp|gif|svg)/i.test(primaryImageUrl) && (
+                      <span className="text-[9px] font-bold text-amber-400 animate-pulse">⚠️ Might be webpage link, not image</span>
+                    )}
+                  </div>
+                  <input
+                    type="url"
+                    placeholder="e.g., https://images-na.ssl-images-amazon.com/... .jpg"
+                    value={primaryImageUrl}
+                    onChange={(e) => setPrimaryImageUrl(e.target.value)}
+                    className={`w-full bg-slate-950/80 text-slate-100 border rounded-2xl px-4 py-3 focus:outline-none font-semibold text-xs transition-all shadow-inner ${
+                      primaryImageUrl && !/\.(jpg|jpeg|png|webp|gif|svg)/i.test(primaryImageUrl)
+                        ? "border-amber-500/50 focus:border-amber-500"
+                        : "border-white/10 focus:border-indigo-500/50"
+                    }`}
+                  />
+                  <p className="text-[9px] text-slate-500 font-medium ml-1">
+                    Right-click the product image on Amazon/Chewy and select <strong>"Copy Image Address"</strong>, then paste it here (not the browser webpage link).
+                  </p>
                 </div>
-                <input
-                  type="url"
-                  placeholder="e.g., https://images-na.ssl-images-amazon.com/... .jpg"
-                  value={primaryImageUrl}
-                  onChange={(e) => setPrimaryImageUrl(e.target.value)}
-                  className={`w-full bg-slate-950/80 text-slate-100 border rounded-2xl px-4 py-3 focus:outline-none font-semibold text-xs transition-all shadow-inner ${
-                    primaryImageUrl && !/\.(jpg|jpeg|png|webp|gif|svg)/i.test(primaryImageUrl)
-                      ? "border-amber-500/50 focus:border-amber-500"
-                      : "border-white/10 focus:border-indigo-500/50"
-                  }`}
-                />
-                <p className="text-[9px] text-slate-500 font-medium ml-1">
-                  Right-click the product image on Amazon/Chewy and select <strong>"Copy Image Address"</strong>, then paste it here (not the browser webpage link).
-                </p>
+
+                {/* Additional Images Section */}
+                <div className="space-y-3 pt-2 border-t border-white/5">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Additional Images (Max 5)</h3>
+                    {additionalImageUrls.length < 5 && (
+                      <button
+                        type="button"
+                        onClick={() => setAdditionalImageUrls([...additionalImageUrls, ""])}
+                        className="py-1 px-2 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/20 text-[9px] font-black tracking-wide uppercase transition-all duration-150 cursor-pointer"
+                      >
+                        + Add Image
+                      </button>
+                    )}
+                  </div>
+
+                  {additionalImageUrls.map((url, idx) => (
+                    <div key={idx} className="relative bg-slate-950/50 p-3.5 rounded-2xl border border-white/5 space-y-2">
+                      <div className="flex justify-between items-center">
+                        <label className="block text-[8px] uppercase tracking-wider text-slate-500 font-bold ml-1">Image #{idx + 1}</label>
+                        <button
+                          type="button"
+                          onClick={() => setAdditionalImageUrls(additionalImageUrls.filter((_, i) => i !== idx))}
+                          className="p-1 text-slate-500 hover:text-rose-455 rounded-lg hover:bg-rose-500/10 transition-colors"
+                          title="Remove Image"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                      </div>
+
+                      <div className="space-y-1">
+                        <input
+                          type="url"
+                          placeholder="e.g., https://images-na.ssl-images-amazon.com/... .jpg"
+                          value={url}
+                          onChange={(e) => {
+                            const updated = [...additionalImageUrls];
+                            updated[idx] = e.target.value;
+                            setAdditionalImageUrls(updated);
+                          }}
+                          className={`w-full bg-slate-950 text-slate-100 border rounded-xl px-3 py-2 focus:outline-none text-[11px] font-semibold transition-all shadow-inner ${
+                            url && !/\.(jpg|jpeg|png|webp|gif|svg)/i.test(url)
+                              ? "border-amber-500/50 focus:border-amber-500"
+                              : "border-white/10 focus:border-indigo-500/40"
+                          }`}
+                        />
+                        {url && !/\.(jpg|jpeg|png|webp|gif|svg)/i.test(url) && (
+                          <p className="text-[8px] font-bold text-amber-400 animate-pulse ml-1 mt-1">⚠️ Might be webpage link, not image</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {/* Product Offers Section */}
@@ -722,9 +782,16 @@ export default function AdminRecommendedProducts() {
                             )}
                             <div>
                               <p className="font-bold text-white leading-tight">{product.name}</p>
-                              <span className="inline-block mt-1 text-[9px] bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-extrabold tracking-wide uppercase px-1.5 py-0.5 rounded">
-                                {product.category}
-                              </span>
+                              <div className="flex items-center space-x-1.5 mt-1">
+                                <span className="inline-block text-[9px] bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-extrabold tracking-wide uppercase px-1.5 py-0.5 rounded">
+                                  {product.category}
+                                </span>
+                                {product.additional_image_urls && product.additional_image_urls.length > 0 && (
+                                  <span className="inline-block text-[9px] bg-white/5 border border-white/10 text-slate-400 font-bold px-1.5 py-0.5 rounded">
+                                    {product.additional_image_urls.length + 1} images
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </td>

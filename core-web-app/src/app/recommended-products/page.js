@@ -4,6 +4,149 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/utils/supabaseClient";
 
+function ProductCard({ product, merchants, renderMerchantLogo, getMerchantStyles, formatDate }) {
+  const imageUrls = [product.primary_image_url, ...(product.additional_image_urls || [])].filter(Boolean);
+  const [activeIdx, setActiveIdx] = useState(0);
+
+  const handleNext = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setActiveIdx((prev) => (prev + 1) % imageUrls.length);
+  };
+
+  const handlePrev = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setActiveIdx((prev) => (prev - 1 + imageUrls.length) % imageUrls.length);
+  };
+
+  return (
+    <div className="group relative flex flex-col justify-between bg-slate-950/50 border border-white/10 rounded-3xl p-6 hover:border-indigo-500/40 hover:shadow-[0_20px_40px_-20px_rgba(99,102,241,0.3)] transition-all duration-300 ease-out">
+      {/* Glowing Aura Effect */}
+      <div className="absolute inset-0 rounded-3xl bg-indigo-500/[0.01] group-hover:bg-indigo-500/[0.02] pointer-events-none transition-colors" />
+
+      {/* Top Section */}
+      <div className="space-y-4">
+        {/* Product Image Carousel */}
+        <div className="w-full h-48 rounded-2xl bg-slate-900 border border-white/5 relative overflow-hidden flex items-center justify-center group/carousel">
+          {imageUrls.length > 0 ? (
+            <img
+              src={imageUrls[activeIdx]}
+              alt={`${product.name} - image ${activeIdx + 1}`}
+              className="w-full h-full object-contain p-4 transition-all duration-300 ease-in-out"
+              onError={(e) => { e.target.src = "/file.svg" }}
+            />
+          ) : (
+            <svg className="w-10 h-10 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          )}
+
+          {/* Category Badge */}
+          <span className="absolute top-3 left-3 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-extrabold tracking-wide text-[9px] uppercase px-2 py-0.5 rounded">
+            {product.category}
+          </span>
+
+          {/* Carousel Navigation Arrows */}
+          {imageUrls.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={handlePrev}
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-slate-950/70 hover:bg-slate-900 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-all opacity-0 group-hover/carousel:opacity-100 cursor-pointer shadow-md select-none"
+                aria-label="Previous image"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={handleNext}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-slate-950/70 hover:bg-slate-900 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-all opacity-0 group-hover/carousel:opacity-100 cursor-pointer shadow-md select-none"
+                aria-label="Next image"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+
+              {/* Dot Indicators */}
+              <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex space-x-1 bg-slate-950/45 px-2 py-1 rounded-full backdrop-blur-sm">
+                {imageUrls.map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setActiveIdx(i);
+                    }}
+                    className={`w-1.5 h-1.5 rounded-full transition-all duration-200 cursor-pointer ${
+                      activeIdx === i ? "bg-indigo-400 w-3" : "bg-slate-650 hover:bg-slate-400"
+                    }`}
+                    aria-label={`Go to image ${i + 1}`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Title & Description */}
+        <div className="space-y-1.5">
+          <h3 className="font-extrabold text-white text-base leading-snug group-hover:text-indigo-300 transition-colors">
+            {product.name}
+          </h3>
+          <p className="text-xs text-slate-400 font-semibold leading-relaxed line-clamp-3">
+            {product.description || "Expert-recommended product for guinea pig nutrition and health support."}
+          </p>
+        </div>
+      </div>
+
+      {/* Bottom Section - Pricing & Affiliate Links */}
+      <div className="pt-6 border-t border-white/5 mt-6 space-y-4">
+        <div className="space-y-2.5">
+          {product.product_offers && product.product_offers.length > 0 ? (
+            product.product_offers.map((offer) => {
+              const merchant = merchants.find(m => m.id === offer.merchant_id);
+              if (!merchant) return null;
+
+              return (
+                <div key={offer.id} className="space-y-1">
+                  <a
+                    href={`/api/out?offerId=${offer.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`w-full py-3 px-4 rounded-xl border flex items-center justify-between font-bold text-xs shadow-md transition-all active:scale-[0.99] ${getMerchantStyles(merchant.name)}`}
+                  >
+                    <div className="flex items-center space-x-2.5">
+                      {renderMerchantLogo(merchant.name)}
+                      <span>Check Price on {merchant.name}</span>
+                    </div>
+                    {offer.manual_price && (
+                      <span className="font-black text-white bg-white/10 px-2 py-0.5 rounded">
+                        ${offer.manual_price.toFixed(2)}
+                      </span>
+                    )}
+                  </a>
+                  <p className="text-[9px] text-slate-500 font-bold ml-1.5 leading-none">
+                    * Price as of {formatDate(offer.last_updated)} - subject to change
+                  </p>
+                </div>
+              );
+            })
+          ) : (
+            <div className="text-center py-2 text-[11px] font-bold text-slate-500">
+              Currently unavailable
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function RecommendedProducts() {
   const [products, setProducts] = useState([]);
   const [merchants, setMerchants] = useState([]);
@@ -215,84 +358,14 @@ export default function RecommendedProducts() {
           /* Products Grid */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredProducts.map((product) => (
-              <div 
+              <ProductCard
                 key={product.id}
-                className="group relative flex flex-col justify-between bg-slate-950/50 border border-white/10 rounded-3xl p-6 hover:border-indigo-500/40 hover:shadow-[0_20px_40px_-20px_rgba(99,102,241,0.3)] transition-all duration-300 ease-out"
-              >
-                {/* Glowing Aura Effect */}
-                <div className="absolute inset-0 rounded-3xl bg-indigo-500/[0.01] group-hover:bg-indigo-500/[0.02] pointer-events-none transition-colors" />
-
-                {/* Top Section */}
-                <div className="space-y-4">
-                  {/* Product Image */}
-                  <div className="w-full h-48 rounded-2xl bg-slate-900 border border-white/5 relative overflow-hidden flex items-center justify-center">
-                    {product.primary_image_url ? (
-                      <img
-                        src={product.primary_image_url}
-                        alt={product.name}
-                        className="w-full h-full object-contain p-4 group-hover:scale-[1.03] transition-transform duration-350"
-                        onError={(e) => { e.target.src = "/file.svg" }}
-                      />
-                    ) : (
-                      <svg className="w-10 h-10 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                    )}
-                    <span className="absolute top-3 left-3 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-extrabold tracking-wide text-[9px] uppercase px-2 py-0.5 rounded">
-                      {product.category}
-                    </span>
-                  </div>
-
-                  {/* Title & Description */}
-                  <div className="space-y-1.5">
-                    <h3 className="font-extrabold text-white text-base leading-snug group-hover:text-indigo-300 transition-colors">
-                      {product.name}
-                    </h3>
-                    <p className="text-xs text-slate-400 font-semibold leading-relaxed line-clamp-3">
-                      {product.description || "Expert-recommended product for guinea pig nutrition and health support."}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Bottom Section - Pricing & Affiliate Links */}
-                <div className="pt-6 border-t border-white/5 mt-6 space-y-4">
-                  <div className="space-y-2.5">
-                    {product.product_offers && product.product_offers.length > 0 ? (
-                      product.product_offers.map((offer) => {
-                        const merchant = merchants.find(m => m.id === offer.merchant_id);
-                        if (!merchant) return null;
-
-                        return (
-                          <div key={offer.id} className="space-y-1">
-                            <a
-                              href={`/api/out?offerId=${offer.id}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={`w-full py-3 px-4 rounded-xl border flex items-center justify-between font-bold text-xs shadow-md transition-all active:scale-[0.99] ${getMerchantStyles(merchant.name)}`}
-                            >
-                              <div className="flex items-center space-x-2.5">
-                                {renderMerchantLogo(merchant.name)}
-                                <span>Check Price on {merchant.name}</span>
-                              </div>
-                              {offer.manual_price && (
-                                <span className="font-black text-white bg-white/10 px-2 py-0.5 rounded">
-                                  ${offer.manual_price.toFixed(2)}
-                                </span>
-                              )}
-                            </a>
-                            <p className="text-[9px] text-slate-500 font-bold ml-1.5 leading-none">
-                              * Price as of {formatDate(offer.last_updated)} - subject to change
-                            </p>
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <div className="text-center py-2 text-[11px] font-bold text-slate-500">
-                        Currently unavailable
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-              </div>
+                product={product}
+                merchants={merchants}
+                renderMerchantLogo={renderMerchantLogo}
+                getMerchantStyles={getMerchantStyles}
+                formatDate={formatDate}
+              />
             ))}
           </div>
         )}
