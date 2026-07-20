@@ -1176,7 +1176,6 @@ export default function PiggyPrints() {
           </div>
         );
       })()}
-      )}
 
       {/* Footer */}
       <footer className="relative w-full border-t border-white/10 bg-slate-950/50 backdrop-blur-lg mt-12 z-10">
