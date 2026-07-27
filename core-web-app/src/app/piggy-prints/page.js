@@ -28,6 +28,9 @@ export default function PiggyPrints() {
   const [blueprintData, setBlueprintData] = useState(null);
   const [loadingBlueprint, setLoadingBlueprint] = useState(false);
   const [isCustomizing, setIsCustomizing] = useState(false);
+  // Natural aspect ratio (width/height) of the displayed mockup image,
+  // needed to derive the print box height fraction on non-square images
+  const [mockupAspect, setMockupAspect] = useState(1);
 
   // Image Upload and Spatial Coordinates
   const [uploadedImageBase64, setUploadedImageBase64] = useState("");
@@ -192,6 +195,7 @@ export default function PiggyPrints() {
     setUploadedFileName("");
     setUploadError("");
     setPolicyConfirmed(false);
+    setMockupAspect(1);
 
     // Query variant-specific placeholders & blank mockup image assets
     if (product.blueprint_id && product.print_provider_id) {
@@ -217,6 +221,7 @@ export default function PiggyPrints() {
   const handleCloseCustomize = () => {
     setSelectedProduct(null);
     setBlueprintData(null);
+    setMockupAspect(1);
   };
 
   // Handle shipping input changes
@@ -735,15 +740,25 @@ export default function PiggyPrints() {
         const activePosition = "front";
 
         // Spatial Calibration
-        const cal = blueprintData?.calibration?.[activePosition] || { fx: 0.29, fy: 0.20, fw: 0.42, rotation: 0, aspect_ratio: 0.875 };
-        const fh = cal.fw / cal.aspect_ratio;
+        // Fallback matches backend DEFAULT_CALIBRATION (main.py); aspect_ratio
+        // is derived from the live placeholder dimensions when available
+        const activePlaceholder = getActivePlaceholder();
+        const fallbackAspect = (activePlaceholder.width && activePlaceholder.height)
+          ? activePlaceholder.width / activePlaceholder.height
+          : 0.875;
+        const cal = blueprintData?.calibration?.[activePosition] || { fx: 0.30, fy: 0.28, fw: 0.40, rotation: 0, aspect_ratio: fallbackAspect };
+        // fh is a fraction of image HEIGHT: fw is a fraction of image width,
+        // so scale by the mockup's own aspect ratio (no-op for square images)
+        const fh = (cal.fw * mockupAspect) / cal.aspect_ratio;
 
-        // Choose Flat-lay blank mockup image from Blueprint details
+        // Choose the exact blank mockup the calibration fractions were extracted from.
+        // blank_images is a list of plain URL strings (see blueprint-dimensions API);
+        // calibration_source_image_index points at the calibrated flat-lay image.
         const sourceIdx = blueprintData?.calibration_source_image_index !== undefined ? blueprintData.calibration_source_image_index : 0;
-        const blankImage = blueprintData?.blank_images?.find(img => img.position === activePosition)
-          || blueprintData?.blank_images?.[sourceIdx !== -1 ? sourceIdx : 0]
-          || blueprintData?.blank_images?.[0];
-        const mockupUrl = blankImage?.src || selectedProduct.images?.[activeProductImageIndex]?.src || "/vercel.svg";
+        const mockupUrl = blueprintData?.blank_images?.[sourceIdx]
+          || blueprintData?.blank_images?.[0]
+          || selectedProduct.images?.[activeProductImageIndex]?.src
+          || "/vercel.svg";
 
         // Drag to position handlers
         const handleMouseDown = (e) => {
@@ -832,6 +847,12 @@ export default function PiggyPrints() {
                         <img
                           src={mockupUrl}
                           alt="Blank Mockup"
+                          onLoad={(e) => {
+                            const { naturalWidth, naturalHeight } = e.currentTarget;
+                            if (naturalWidth && naturalHeight) {
+                              setMockupAspect(naturalWidth / naturalHeight);
+                            }
+                          }}
                           className="block max-w-full max-h-[240px] object-contain select-none pointer-events-none"
                         />
 
